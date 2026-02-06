@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 import {
   Plus,
   Search,
@@ -172,6 +173,7 @@ const emptyForm: Omit<Case, "id" | "caseId" | "dateCreated"> = {
 };
 
 export default function Cases() {
+  const { t } = useTranslation();
   const [cases, setCases] = useState<Case[]>(initialCases);
   const [loading, setLoading] = useState(false);
 
@@ -231,12 +233,12 @@ export default function Cases() {
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
-    if (!formData.doctor.trim()) errors.doctor = "Doctor name is required";
-    if (!formData.patientName.trim()) errors.patientName = "Patient name is required";
-    if (!formData.caseType) errors.caseType = "Case type is required";
-    if (!formData.material) errors.material = "Material is required";
-    if (!formData.tooth.trim()) errors.tooth = "Tooth/area is required";
-    if (!formData.dueDate) errors.dueDate = "Due date is required";
+    if (!formData.doctor.trim()) errors.doctor = t("cases.doctorRequired");
+    if (!formData.patientName.trim()) errors.patientName = t("cases.patientRequired");
+    if (!formData.caseType) errors.caseType = t("cases.caseTypeRequired");
+    if (!formData.material) errors.material = t("cases.materialRequired");
+    if (!formData.tooth.trim()) errors.tooth = t("cases.toothRequired");
+    if (!formData.dueDate) errors.dueDate = t("cases.dueDateRequired");
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -352,7 +354,7 @@ export default function Cases() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Doctor Name *</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("cases.doctorName")} *</label>
           <input
             type="text"
             value={formData.doctor}
@@ -363,7 +365,7 @@ export default function Cases() {
           {formErrors.doctor && <p className="text-xs text-red-600 mt-1">{formErrors.doctor}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Patient Name *</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("cases.patientName")} *</label>
           <input
             type="text"
             value={formData.patientName}
@@ -376,13 +378,13 @@ export default function Cases() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Case Type *</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("cases.caseType")} *</label>
           <select
             value={formData.caseType}
             onChange={(e) => setFormData({ ...formData, caseType: e.target.value })}
             className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">Select case type...</option>
+            <option value="">{t("cases.selectCaseType")}</option>
             {caseTypes.map((t) => (
               <option key={t} value={t}>{t}</option>
             ))}
@@ -390,13 +392,13 @@ export default function Cases() {
           {formErrors.caseType && <p className="text-xs text-red-600 mt-1">{formErrors.caseType}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Material *</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("cases.material")} *</label>
           <select
             value={formData.material}
             onChange={(e) => setFormData({ ...formData, material: e.target.value })}
             className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">Select material...</option>
+            <option value="">{t("cases.selectMaterial")}</option>
             {materials.map((m) => (
               <option key={m} value={m}>{m}</option>
             ))}
@@ -406,7 +408,7 @@ export default function Cases() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Tooth / Area *</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("cases.toothArea")} *</label>
           <input
             type="text"
             value={formData.tooth}
@@ -417,7 +419,7 @@ export default function Cases() {
           {formErrors.tooth && <p className="text-xs text-red-600 mt-1">{formErrors.tooth}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Shade</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("cases.shade")}</label>
           <select
             value={formData.shade}
             onChange={(e) => setFormData({ ...formData, shade: e.target.value })}
@@ -429,21 +431,21 @@ export default function Cases() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Priority</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("common.priority")}</label>
           <select
             value={formData.priority}
             onChange={(e) => setFormData({ ...formData, priority: e.target.value as Case["priority"] })}
             className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="low">{t("cases.low")}</option>
+            <option value="medium">{t("cases.medium")}</option>
+            <option value="high">{t("cases.high")}</option>
           </select>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Due Date *</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("cases.dueDate")} *</label>
           <input
             type="date"
             value={formData.dueDate}
@@ -453,27 +455,27 @@ export default function Cases() {
           {formErrors.dueDate && <p className="text-xs text-red-600 mt-1">{formErrors.dueDate}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1">Status</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("common.status")}</label>
           <select
             value={formData.status}
             onChange={(e) => setFormData({ ...formData, status: e.target.value as Case["status"] })}
             className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="intake">Intake</option>
-            <option value="planning">Planning</option>
-            <option value="design">Design</option>
-            <option value="production">Production</option>
-            <option value="qc">QC</option>
-            <option value="delivery">Ready for Delivery</option>
+            <option value="intake">{t("cases.intake")}</option>
+            <option value="planning">{t("cases.planning")}</option>
+            <option value="design">{t("cases.design")}</option>
+            <option value="production">{t("cases.production")}</option>
+            <option value="qc">{t("nav.qc")}</option>
+            <option value="delivery">{t("cases.readyForDelivery")}</option>
           </select>
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-foreground mb-1">Notes</label>
+          <label className="block text-sm font-medium text-foreground mb-1">{t("common.notes")}</label>
         <textarea
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          placeholder="Special instructions, clinical notes..."
+          placeholder={t("cases.specialInstructions")}
           rows={3}
           className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
         />
@@ -485,47 +487,47 @@ export default function Cases() {
     <Layout>
       {/* Header Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Case Management</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{t("cases.title")}</h1>
         <p className="text-muted-foreground">
-          Manage all cases throughout their lifecycle with full traceability
+          {t("cases.subtitle")}
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8 animate-slideUp">
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="text-3xl font-bold text-primary">{cases.length}</div>
-          <p className="text-sm text-muted-foreground">Total</p>
+          <p className="text-sm text-muted-foreground">{t("common.total")}</p>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="text-3xl font-bold text-red-600">
             {cases.filter((c) => c.priority === "high").length}
           </div>
-          <p className="text-sm text-muted-foreground">High Priority</p>
+          <p className="text-sm text-muted-foreground">{t("cases.highPriority")}</p>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="text-3xl font-bold text-blue-600">
             {cases.filter((c) => c.status === "intake" || c.status === "planning").length}
           </div>
-          <p className="text-sm text-muted-foreground">Planning</p>
+          <p className="text-sm text-muted-foreground">{t("cases.planning")}</p>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="text-3xl font-bold text-purple-600">
             {cases.filter((c) => c.status === "design").length}
           </div>
-          <p className="text-sm text-muted-foreground">In Design</p>
+          <p className="text-sm text-muted-foreground">{t("cases.inDesign")}</p>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="text-3xl font-bold text-amber-600">
             {cases.filter((c) => c.status === "production").length}
           </div>
-          <p className="text-sm text-muted-foreground">Production</p>
+          <p className="text-sm text-muted-foreground">{t("cases.production")}</p>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="text-3xl font-bold text-green-600">
             {cases.filter((c) => c.status === "delivery").length}
           </div>
-          <p className="text-sm text-muted-foreground">Ready</p>
+          <p className="text-sm text-muted-foreground">{t("cases.ready")}</p>
         </div>
       </div>
 
@@ -535,7 +537,7 @@ export default function Cases() {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by case ID, doctor, patient, or type..."
+            placeholder={t("cases.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-md border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -546,27 +548,27 @@ export default function Cases() {
           onChange={(e) => setFilterStatus(e.target.value)}
           className="px-4 py-2 rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
         >
-          <option value="">All Statuses</option>
-          <option value="intake">Intake</option>
-          <option value="planning">Planning</option>
-          <option value="design">Design</option>
-          <option value="production">Production</option>
-          <option value="qc">QC</option>
-          <option value="delivery">Ready for Delivery</option>
+          <option value="">{t("cases.allStatuses")}</option>
+          <option value="intake">{t("cases.intake")}</option>
+          <option value="planning">{t("cases.planning")}</option>
+          <option value="design">{t("cases.design")}</option>
+          <option value="production">{t("cases.production")}</option>
+          <option value="qc">{t("nav.qc")}</option>
+          <option value="delivery">{t("cases.readyForDelivery")}</option>
         </select>
         <select
           value={filterPriority}
           onChange={(e) => setFilterPriority(e.target.value)}
           className="px-4 py-2 rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
         >
-          <option value="">All Priorities</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
+          <option value="">{t("cases.allPriorities")}</option>
+          <option value="low">{t("cases.low")}</option>
+          <option value="medium">{t("cases.medium")}</option>
+          <option value="high">{t("cases.high")}</option>
         </select>
         <Button variant="outline" onClick={handleExport}>
           <Download className="w-4 h-4 mr-2" />
-          Export
+          {t("common.export")}
         </Button>
         <Button
           onClick={() => {
@@ -576,30 +578,30 @@ export default function Cases() {
           }}
         >
           <Plus className="w-4 h-4 mr-2" />
-          New Case
+          {t("common.newCase")}
         </Button>
       </div>
 
       {/* Cases Table */}
-      <div className="dlos-card overflow-hidden">
+      <div className="bg-card border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-secondary/50">
                 <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("caseId")}>
-                  <div className="flex items-center gap-1">Case ID <ArrowUpDown className="w-3 h-3" /></div>
+                  <div className="flex items-center gap-1">{t("cases.caseId")} <ArrowUpDown className="w-3 h-3" /></div>
                 </th>
                 <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("doctor")}>
-                  <div className="flex items-center gap-1">Doctor <ArrowUpDown className="w-3 h-3" /></div>
+                  <div className="flex items-center gap-1">{t("cases.doctor")} <ArrowUpDown className="w-3 h-3" /></div>
                 </th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">Patient</th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">Type</th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">Status</th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">Priority</th>
+                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("cases.patient")}</th>
+                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("cases.type")}</th>
+                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.status")}</th>
+                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.priority")}</th>
                 <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("dueDate")}>
-                  <div className="flex items-center gap-1">Due Date <ArrowUpDown className="w-3 h-3" /></div>
+                  <div className="flex items-center gap-1">{t("cases.dueDate")} <ArrowUpDown className="w-3 h-3" /></div>
                 </th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">Actions</th>
+                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -630,17 +632,17 @@ export default function Cases() {
                           onChange={(e) => handleStatusChange(caseItem.id, e.target.value as Case["status"])}
                           className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${statusColor}`}
                         >
-                          <option value="intake">Intake</option>
-                          <option value="planning">Planning</option>
-                          <option value="design">Design</option>
-                          <option value="production">Production</option>
-                          <option value="qc">QC</option>
-                          <option value="delivery">Ready for Delivery</option>
+                          <option value="intake">{t("cases.intake")}</option>
+                          <option value="planning">{t("cases.planning")}</option>
+                          <option value="design">{t("cases.design")}</option>
+                          <option value="production">{t("cases.production")}</option>
+                          <option value="qc">{t("nav.qc")}</option>
+                          <option value="delivery">{t("cases.readyForDelivery")}</option>
                         </select>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${priorityColor}`}>
-                          {priorityLabel}
+                          {caseItem.priority === "high" ? t("cases.high") : caseItem.priority === "medium" ? t("cases.medium") : t("cases.low")}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-foreground">
@@ -675,7 +677,7 @@ export default function Cases() {
                 <tr>
                   <td colSpan={8} className="px-6 py-8 text-center">
                     <p className="text-muted-foreground">
-                      No cases found. Create your first case to get started.
+                      {t("cases.noCases")}
                     </p>
                   </td>
                 </tr>
@@ -684,7 +686,7 @@ export default function Cases() {
           </table>
         </div>
         <div className="px-6 py-3 border-t border-border bg-secondary/30 text-sm text-muted-foreground">
-          Showing {filteredCases.length} of {cases.length} cases
+          {t("common.showingOf", { shown: filteredCases.length, total: cases.length })}
         </div>
       </div>
 
@@ -693,7 +695,7 @@ export default function Cases() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-lg border border-border shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-xl font-bold text-foreground">Create New Case</h2>
+              <h2 className="text-xl font-bold text-foreground">{t("cases.createNewCase")}</h2>
               <button
                 onClick={() => setShowCreateDialog(false)}
                 className="p-1 hover:bg-secondary rounded-md transition-colors"
@@ -704,11 +706,11 @@ export default function Cases() {
             <div className="p-6">{renderForm()}</div>
             <div className="flex gap-3 p-6 border-t border-border justify-end">
               <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleCreate}>
                 <Plus className="w-4 h-4 mr-2" />
-                Create Case
+                {t("cases.createCase")}
               </Button>
             </div>
           </div>
@@ -720,7 +722,7 @@ export default function Cases() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-lg border border-border shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-xl font-bold text-foreground">Edit Case - {editingCase.caseId}</h2>
+              <h2 className="text-xl font-bold text-foreground">{t("cases.editCase")} - {editingCase.caseId}</h2>
               <button
                 onClick={() => { setShowEditDialog(false); setEditingCase(null); }}
                 className="p-1 hover:bg-secondary rounded-md transition-colors"
@@ -731,11 +733,11 @@ export default function Cases() {
             <div className="p-6">{renderForm()}</div>
             <div className="flex gap-3 p-6 border-t border-border justify-end">
               <Button variant="outline" onClick={() => { setShowEditDialog(false); setEditingCase(null); }}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleEdit}>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Save Changes
+                {t("cases.saveChanges")}
               </Button>
             </div>
           </div>
@@ -747,21 +749,21 @@ export default function Cases() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-lg border border-border shadow-xl w-full max-w-md">
             <div className="p-6">
-              <h2 className="text-lg font-bold text-foreground mb-2">Delete Case</h2>
+              <h2 className="text-lg font-bold text-foreground mb-2">{t("cases.deleteCase")}</h2>
               <p className="text-muted-foreground text-sm">
-                Are you sure you want to delete this case? This action cannot be undone.
+                {t("cases.deleteConfirm")}
               </p>
             </div>
             <div className="flex gap-3 p-6 border-t border-border justify-end">
               <Button variant="outline" onClick={() => setShowDeleteConfirm(null)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => handleDelete(showDeleteConfirm)}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete
+                {t("common.delete")}
               </Button>
             </div>
           </div>
@@ -770,30 +772,30 @@ export default function Cases() {
 
       {/* Info Section */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Case Intake Protocol
+            {t("cases.caseIntakeProtocol")}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Validate doctor prescription completeness</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Identify missing clinical data</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Request clarifications professionally</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Assign internal case ID</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Define priority and turnaround time</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Log case with full traceability</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("cases.validatePrescription")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("cases.identifyMissing")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("cases.requestClarifications")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("cases.assignCaseId")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("cases.definePriority")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("cases.logTraceability")}</li>
           </ul>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">
-            Status Workflow
+            {t("cases.statusWorkflow")}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-500" /> 1. Intake - Case registration and validation</li>
-            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-500" /> 2. Planning - Prescription analysis</li>
-            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500" /> 3. Design - CAD design phase</li>
-            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-amber-500" /> 4. Production - Milling and manufacturing</li>
-            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-orange-500" /> 5. QC - Quality control verification</li>
-            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-500" /> 6. Delivery - Ready for shipment</li>
+            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-500" /> {t("cases.intakeDesc")}</li>
+            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-cyan-500" /> {t("cases.planningDesc")}</li>
+            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-purple-500" /> {t("cases.designDesc")}</li>
+            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-amber-500" /> {t("cases.productionDesc")}</li>
+            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-orange-500" /> {t("cases.qcDesc")}</li>
+            <li className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-green-500" /> {t("cases.deliveryDesc")}</li>
           </ul>
         </div>
       </div>

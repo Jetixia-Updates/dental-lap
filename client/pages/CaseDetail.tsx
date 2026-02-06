@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Trash2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CaseNote {
   id: string;
@@ -190,6 +191,7 @@ const defaultCase = (caseId: string) => ({
 export default function CaseDetail() {
   const navigate = useNavigate();
   const { caseId } = useParams();
+  const { t } = useTranslation();
   const [caseData, setCaseData] = useState<any>(allCasesData[caseId || ""] || defaultCase(caseId || "UNKNOWN"));
 
   const [notes, setNotes] = useState<CaseNote[]>(caseData.notes || []);
@@ -344,7 +346,7 @@ export default function CaseDetail() {
                 : caseData.priority === "medium" ? "bg-amber-100 text-amber-800"
                 : "bg-green-100 text-green-800"
               }`}>
-                {caseData.priority} priority
+                {caseData.priority} {t("common.priority").toLowerCase()}
               </span>
             </div>
             <p className="text-muted-foreground">
@@ -357,12 +359,12 @@ export default function CaseDetail() {
             <>
               <Button variant="outline" onClick={() => setIsEditing(true)}>
                 <Edit className="w-4 h-4 mr-2" />
-                Edit
+                {t("common.edit")}
               </Button>
               <Link to="/communication">
                 <Button>
                   <MessageSquare className="w-4 h-4 mr-2" />
-                  Message Doctor
+                  {t("caseDetail.contactDoctor")}
                 </Button>
               </Link>
             </>
@@ -370,11 +372,11 @@ export default function CaseDetail() {
             <>
               <Button variant="outline" onClick={() => setIsEditing(false)}>
                 <X className="w-4 h-4 mr-2" />
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleSaveEdit}>
                 <Save className="w-4 h-4 mr-2" />
-                Save Changes
+                {t("cases.saveChanges")}
               </Button>
             </>
           )}
@@ -385,28 +387,28 @@ export default function CaseDetail() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Case Info */}
-          <div className="dlos-card">
-            <h2 className="text-lg font-bold text-foreground mb-6">Case Information</h2>
+          <div className="bg-card border rounded-lg p-6">
+            <h2 className="text-lg font-bold text-foreground mb-6">{t("caseDetail.caseInformation")}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Doctor</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("cases.doctor")}</p>
                 <p className="font-semibold text-foreground">{caseData.doctor}</p>
                 <p className="text-xs text-muted-foreground">{caseData.clinic}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Patient</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("cases.patient")}</p>
                 <p className="font-semibold text-foreground">{caseData.patient}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Tooth</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("caseDetail.tooth")}</p>
                 <p className="font-semibold text-foreground">{caseData.tooth}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Material</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("caseDetail.materialLabel")}</p>
                 <p className="font-semibold text-foreground">{caseData.material}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Shade</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("caseDetail.shadeLabel")}</p>
                 {isEditing ? (
                   <input
                     type="text"
@@ -419,7 +421,7 @@ export default function CaseDetail() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Margin Type</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("caseDetail.marginType")}</p>
                 {isEditing ? (
                   <input
                     type="text"
@@ -432,11 +434,11 @@ export default function CaseDetail() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Date Created</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("caseDetail.createdDate")}</p>
                 <p className="font-semibold text-foreground">{new Date(caseData.dateCreated).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Due Date</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("cases.dueDate")}</p>
                 {isEditing ? (
                   <input
                     type="date"
@@ -449,16 +451,16 @@ export default function CaseDetail() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Priority</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("common.priority")}</p>
                 {isEditing ? (
                   <select
                     value={editData.priority}
                     onChange={(e) => setEditData({ ...editData, priority: e.target.value })}
                     className="w-full px-2 py-1 rounded border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
+                    <option value="low">{t("cases.low")}</option>
+                    <option value="medium">{t("cases.medium")}</option>
+                    <option value="high">{t("cases.high")}</option>
                   </select>
                 ) : (
                   <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${
@@ -474,10 +476,10 @@ export default function CaseDetail() {
           </div>
 
           {/* Prescription */}
-          <div className="dlos-card">
+          <div className="bg-card border rounded-lg p-6">
             <h2 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" />
-              Doctor's Prescription
+              {t("caseDetail.prescription")}
             </h2>
             <div className="space-y-4">
               {Object.entries(caseData.prescription).map(([key, value]) => (
@@ -492,8 +494,8 @@ export default function CaseDetail() {
           </div>
 
           {/* Workflow Progress */}
-          <div className="dlos-card">
-            <h2 className="text-lg font-bold text-foreground mb-6">Workflow Progress</h2>
+          <div className="bg-card border rounded-lg p-6">
+            <h2 className="text-lg font-bold text-foreground mb-6">{t("caseDetail.workflowProgress")}</h2>
             <div className="space-y-4">
               {workflow.map((step, idx) => (
                 <div key={idx} className="flex items-start gap-4">
@@ -506,9 +508,9 @@ export default function CaseDetail() {
                         : "cursor-default"
                     } transition-all`}
                     title={
-                      step.status === "pending" ? "Click to start" :
-                      step.status === "in-progress" ? "Click to complete" :
-                      "Completed"
+                      step.status === "pending" ? t("caseDetail.startStep") :
+                      step.status === "in-progress" ? t("caseDetail.completeStep") :
+                      t("caseDetail.done")
                     }
                   >
                     {getStatusIcon(step.status)}
@@ -520,14 +522,14 @@ export default function CaseDetail() {
                     )}
                   </div>
                   <span className={`text-xs px-2 py-1 rounded whitespace-nowrap ${getStatusColor(step.status)}`}>
-                    {step.status === "completed" ? "Done" : step.status === "in-progress" ? "In Progress" : "Pending"}
+                    {step.status === "completed" ? t("caseDetail.done") : step.status === "in-progress" ? t("caseDetail.inProgress") : t("caseDetail.pendingStatus")}
                   </span>
                   {step.status !== "completed" && !(idx > 0 && workflow[idx - 1].status !== "completed" && step.status === "pending") && (
                     <button
                       onClick={() => handleAdvanceWorkflow(idx)}
                       className="text-xs text-primary hover:underline flex items-center gap-1"
                     >
-                      {step.status === "pending" ? "Start" : "Complete"}
+                      {step.status === "pending" ? t("caseDetail.startStep") : t("caseDetail.completeStep")}
                       <ChevronRight className="w-3 h-3" />
                     </button>
                   )}
@@ -540,12 +542,12 @@ export default function CaseDetail() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Progress */}
-          <div className="dlos-card">
-            <h3 className="text-lg font-bold text-foreground mb-4">Case Status</h3>
+          <div className="bg-card border rounded-lg p-6">
+            <h3 className="text-lg font-bold text-foreground mb-4">{t("caseDetail.caseStatus")}</h3>
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-foreground">Overall Progress</span>
+                  <span className="text-sm font-medium text-foreground">{t("caseDetail.overallProgress")}</span>
                   <span className="text-sm font-bold text-primary">{progress}%</span>
                 </div>
                 <div className="h-3 bg-secondary rounded-full overflow-hidden">
@@ -561,25 +563,25 @@ export default function CaseDetail() {
                 <span className={`inline-block px-3 py-1 text-sm font-semibold rounded ${
                   getStatusColor(workflow.find((s) => s.status === "in-progress")?.status || "pending")
                 }`}>
-                  {workflow.find((s) => s.status === "in-progress")?.step || "All Completed"}{" "}
-                  {workflow.find((s) => s.status === "in-progress") ? "Phase" : ""}
+                  {workflow.find((s) => s.status === "in-progress")?.step || t("caseDetail.allCompleted")}{" "}
+                  {workflow.find((s) => s.status === "in-progress") ? t("caseDetail.phase") : ""}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Key Metrics */}
-          <div className="dlos-card">
-            <h3 className="text-lg font-bold text-foreground mb-4">Key Metrics</h3>
+          <div className="bg-card border rounded-lg p-6">
+            <h3 className="text-lg font-bold text-foreground mb-4">{t("caseDetail.keyMetrics")}</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Days in Lab</span>
+                <span className="text-sm text-muted-foreground">{t("caseDetail.daysInLab")}</span>
                 <span className="font-semibold text-foreground">
                   {Math.floor((Date.now() - new Date(caseData.dateCreated).getTime()) / 86400000)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Days Remaining</span>
+                <span className="text-sm text-muted-foreground">{t("caseDetail.daysRemaining")}</span>
                 <span className={`font-semibold ${
                   Math.floor((new Date(editData.dueDate).getTime() - Date.now()) / 86400000) <= 1 ? "text-red-600" : "text-primary"
                 }`}>
@@ -587,45 +589,45 @@ export default function CaseDetail() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Steps Completed</span>
+                <span className="text-sm text-muted-foreground">{t("caseDetail.stepsCompleted")}</span>
                 <span className="font-semibold text-foreground">
                   {workflow.filter((s) => s.status === "completed").length}/{workflow.length}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">On-Time Risk</span>
+                <span className="text-sm text-muted-foreground">{t("caseDetail.onTimeRisk")}</span>
                 <span className={`font-semibold ${
                   Math.floor((new Date(editData.dueDate).getTime() - Date.now()) / 86400000) <= 1 ? "text-red-600"
                   : Math.floor((new Date(editData.dueDate).getTime() - Date.now()) / 86400000) <= 3 ? "text-amber-600"
                   : "text-green-600"
                 }`}>
-                  {Math.floor((new Date(editData.dueDate).getTime() - Date.now()) / 86400000) <= 1 ? "High"
-                    : Math.floor((new Date(editData.dueDate).getTime() - Date.now()) / 86400000) <= 3 ? "Medium"
-                    : "Low"}
+                  {Math.floor((new Date(editData.dueDate).getTime() - Date.now()) / 86400000) <= 1 ? t("cases.high")
+                    : Math.floor((new Date(editData.dueDate).getTime() - Date.now()) / 86400000) <= 3 ? t("cases.medium")
+                    : t("cases.low")}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="dlos-card">
-            <h3 className="text-lg font-bold text-foreground mb-4">Quick Actions</h3>
+          <div className="bg-card border rounded-lg p-6">
+            <h3 className="text-lg font-bold text-foreground mb-4">{t("caseDetail.quickActions")}</h3>
             <div className="space-y-2">
               <Button
                 variant="outline"
                 className="w-full justify-start"
                 onClick={() => {
                   // Rush: set all pending steps to urgent
-                  alert("Case flagged for rush processing. All departments notified.");
+                  alert(t("caseDetail.rushAlert"));
                 }}
               >
                 <Zap className="w-4 h-4 mr-2" />
-                Rush Processing
+                {t("caseDetail.rushProcessing")}
               </Button>
               <Link to="/quality-control" className="block">
                 <Button variant="outline" className="w-full justify-start">
                   <Shield className="w-4 h-4 mr-2" />
-                  QC Checklist
+                  {t("qualityControl.qcChecklist")}
                 </Button>
               </Link>
               <Button
@@ -634,7 +636,7 @@ export default function CaseDetail() {
                 onClick={() => window.print()}
               >
                 <Printer className="w-4 h-4 mr-2" />
-                Print Prescription
+                {t("caseDetail.printPrescription")}
               </Button>
             </div>
           </div>
@@ -642,8 +644,8 @@ export default function CaseDetail() {
       </div>
 
       {/* Notes Section */}
-      <div className="mt-8 dlos-card">
-        <h2 className="text-lg font-bold text-foreground mb-6">Case Notes & Communication</h2>
+      <div className="mt-8 bg-card border rounded-lg p-6">
+        <h2 className="text-lg font-bold text-foreground mb-6">{t("caseDetail.caseNotes")}</h2>
 
         {/* Add Note */}
         <div className="mb-6 pb-6 border-b border-border">
@@ -653,21 +655,21 @@ export default function CaseDetail() {
               onChange={(e) => setNoteType(e.target.value as CaseNote["type"])}
               className="px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="update">Update</option>
-              <option value="feedback">Feedback</option>
-              <option value="issue">Issue</option>
+              <option value="update">{t("caseDetail.updateType")}</option>
+              <option value="feedback">{t("caseDetail.feedbackType")}</option>
+              <option value="issue">{t("caseDetail.issueType")}</option>
             </select>
           </div>
           <textarea
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
-            placeholder="Add a note or update..."
+            placeholder={t("caseDetail.addNote")}
             rows={3}
             className="w-full px-4 py-3 rounded-md border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
           <div className="flex gap-2 mt-3 justify-end">
-            <Button variant="outline" onClick={() => setNewNote("")}>Clear</Button>
-            <Button onClick={handleAddNote} disabled={!newNote.trim()}>Post Note</Button>
+            <Button variant="outline" onClick={() => setNewNote("")}>{t("caseDetail.clearBtn")}</Button>
+            <Button onClick={handleAddNote} disabled={!newNote.trim()}>{t("common.postNote")}</Button>
           </div>
         </div>
 
@@ -701,7 +703,7 @@ export default function CaseDetail() {
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">No notes yet. Add the first note above.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">{t("caseDetail.noNotes")}</p>
           )}
         </div>
       </div>

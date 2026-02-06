@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,141 +40,6 @@ interface Department {
   path: string;
 }
 
-const departmentsData: Department[] = [
-  {
-    id: 1,
-    name: "Reception & Intake",
-    description: "Validate prescriptions, register incoming cases and manage initial documentation",
-    icon: ClipboardList,
-    color: "from-blue-500 to-blue-600",
-    staff: [
-      { id: "1", name: "Sarah Thompson", role: "Intake Coordinator", status: "available" },
-      { id: "2", name: "Mike Chen", role: "Reception Manager", status: "available" },
-      { id: "3", name: "Laura Kim", role: "Front Desk", status: "busy" },
-    ],
-    activeCases: 15,
-    path: "/departments/reception",
-  },
-  {
-    id: 2,
-    name: "Case Planning",
-    description: "Analyze prescriptions, plan restoration strategy and coordinate treatment workflows",
-    icon: FileText,
-    color: "from-cyan-500 to-cyan-600",
-    staff: [
-      { id: "4", name: "Dr. Lisa Rodriguez", role: "Lab Director", status: "available" },
-      { id: "5", name: "James Park", role: "Case Planner", status: "busy" },
-    ],
-    activeCases: 8,
-    path: "/departments/case-planning",
-  },
-  {
-    id: 3,
-    name: "Model & Scan",
-    description: "Physical impression pouring, digital scanning and 3D model generation",
-    icon: ScanLine,
-    color: "from-teal-500 to-teal-600",
-    staff: [
-      { id: "6", name: "Emily Watson", role: "Scanner Technician", status: "busy" },
-      { id: "7", name: "David Lee", role: "Model Technician", status: "available" },
-    ],
-    activeCases: 12,
-    path: "/departments/model-scan",
-  },
-  {
-    id: 4,
-    name: "CAD Design",
-    description: "Digital restoration design, abutment creation and virtual articulation workflows",
-    icon: PenTool,
-    color: "from-emerald-500 to-emerald-600",
-    staff: [
-      { id: "8", name: "Alex Morrison", role: "CAD Designer Lead", status: "busy" },
-      { id: "9", name: "Sophie Johnson", role: "CAD Designer", status: "available" },
-      { id: "10", name: "Tom Bradley", role: "CAD Designer", status: "available" },
-    ],
-    activeCases: 18,
-    path: "/departments/cad-design",
-  },
-  {
-    id: 5,
-    name: "CAM Production",
-    description: "CNC milling, 3D printing and subtractive manufacturing of dental restorations",
-    icon: Factory,
-    color: "from-green-500 to-green-600",
-    staff: [
-      { id: "11", name: "Marcus Steel", role: "Milling Technician", status: "busy" },
-      { id: "12", name: "Rachel Price", role: "3D Print Operator", status: "busy" },
-    ],
-    activeCases: 20,
-    path: "/departments/cam-production",
-  },
-  {
-    id: 6,
-    name: "Finishing",
-    description: "Ceramic layering, staining, glazing and final aesthetic customization",
-    icon: Sparkles,
-    color: "from-amber-500 to-amber-600",
-    staff: [
-      { id: "13", name: "Leonardo Rossi", role: "Master Ceramist", status: "busy" },
-      { id: "14", name: "Nina Hassan", role: "Finishing Technician", status: "available" },
-    ],
-    activeCases: 10,
-    path: "/departments/finishing",
-  },
-  {
-    id: 7,
-    name: "Logistics",
-    description: "Case packaging, shipment tracking, delivery coordination and returns handling",
-    icon: Truck,
-    color: "from-orange-500 to-orange-600",
-    staff: [
-      { id: "15", name: "Kevin Martin", role: "Logistics Manager", status: "available" },
-      { id: "16", name: "Lisa Anderson", role: "Shipping Coordinator", status: "available" },
-    ],
-    activeCases: 5,
-    path: "/departments/logistics",
-  },
-  {
-    id: 8,
-    name: "Inventory",
-    description: "Material stock management, supply ordering and consumption tracking",
-    icon: Package,
-    color: "from-pink-500 to-pink-600",
-    staff: [
-      { id: "17", name: "Carlos Garcia", role: "Inventory Manager", status: "available" },
-      { id: "18", name: "Yuki Tanaka", role: "Supply Coordinator", status: "busy" },
-    ],
-    activeCases: 3,
-    path: "/departments/inventory",
-  },
-  {
-    id: 9,
-    name: "Financial",
-    description: "Case costing, invoicing, profitability analysis and financial reporting",
-    icon: DollarSign,
-    color: "from-purple-500 to-purple-600",
-    staff: [
-      { id: "19", name: "Michael Torres", role: "Finance Manager", status: "available" },
-      { id: "20", name: "Angela White", role: "Billing Specialist", status: "available" },
-    ],
-    activeCases: 4,
-    path: "/departments/financial",
-  },
-  {
-    id: 10,
-    name: "Continuous Improvement",
-    description: "Error analysis, process optimization, KPI tracking and quality initiatives",
-    icon: TrendingUp,
-    color: "from-indigo-500 to-indigo-600",
-    staff: [
-      { id: "21", name: "Dr. Amanda Foster", role: "Quality Director", status: "available" },
-      { id: "22", name: "Ryan Patel", role: "Process Analyst", status: "busy" },
-    ],
-    activeCases: 2,
-    path: "/departments/continuous-improvement",
-  },
-];
-
 const getStatusColor = (status: string) => {
   switch (status) {
     case "available":
@@ -201,6 +67,143 @@ const getStatusDot = (status: string) => {
 };
 
 export default function Departments() {
+  const { t } = useTranslation();
+
+  const departmentsData: Department[] = [
+    {
+      id: 1,
+      name: t("deptPages.reception.title"),
+      description: t("deptPages.reception.subtitle"),
+      icon: ClipboardList,
+      color: "from-blue-500 to-blue-600",
+      staff: [
+        { id: "1", name: "Sarah Thompson", role: "Intake Coordinator", status: "available" },
+        { id: "2", name: "Mike Chen", role: "Reception Manager", status: "available" },
+        { id: "3", name: "Laura Kim", role: "Front Desk", status: "busy" },
+      ],
+      activeCases: 15,
+      path: "/departments/reception",
+    },
+    {
+      id: 2,
+      name: t("deptPages.casePlanning.title"),
+      description: t("deptPages.casePlanning.subtitle"),
+      icon: FileText,
+      color: "from-cyan-500 to-cyan-600",
+      staff: [
+        { id: "4", name: "Dr. Lisa Rodriguez", role: "Lab Director", status: "available" },
+        { id: "5", name: "James Park", role: "Case Planner", status: "busy" },
+      ],
+      activeCases: 8,
+      path: "/departments/case-planning",
+    },
+    {
+      id: 3,
+      name: t("deptPages.modelScan.title"),
+      description: t("deptPages.modelScan.subtitle"),
+      icon: ScanLine,
+      color: "from-teal-500 to-teal-600",
+      staff: [
+        { id: "6", name: "Emily Watson", role: "Scanner Technician", status: "busy" },
+        { id: "7", name: "David Lee", role: "Model Technician", status: "available" },
+      ],
+      activeCases: 12,
+      path: "/departments/model-scan",
+    },
+    {
+      id: 4,
+      name: t("deptPages.cadDesign.title"),
+      description: t("deptPages.cadDesign.subtitle"),
+      icon: PenTool,
+      color: "from-emerald-500 to-emerald-600",
+      staff: [
+        { id: "8", name: "Alex Morrison", role: "CAD Designer Lead", status: "busy" },
+        { id: "9", name: "Sophie Johnson", role: "CAD Designer", status: "available" },
+        { id: "10", name: "Tom Bradley", role: "CAD Designer", status: "available" },
+      ],
+      activeCases: 18,
+      path: "/departments/cad-design",
+    },
+    {
+      id: 5,
+      name: t("deptPages.camProduction.title"),
+      description: t("deptPages.camProduction.subtitle"),
+      icon: Factory,
+      color: "from-green-500 to-green-600",
+      staff: [
+        { id: "11", name: "Marcus Steel", role: "Milling Technician", status: "busy" },
+        { id: "12", name: "Rachel Price", role: "3D Print Operator", status: "busy" },
+      ],
+      activeCases: 20,
+      path: "/departments/cam-production",
+    },
+    {
+      id: 6,
+      name: t("deptPages.finishing.title"),
+      description: t("deptPages.finishing.subtitle"),
+      icon: Sparkles,
+      color: "from-amber-500 to-amber-600",
+      staff: [
+        { id: "13", name: "Leonardo Rossi", role: "Master Ceramist", status: "busy" },
+        { id: "14", name: "Nina Hassan", role: "Finishing Technician", status: "available" },
+      ],
+      activeCases: 10,
+      path: "/departments/finishing",
+    },
+    {
+      id: 7,
+      name: t("deptPages.logistics.title"),
+      description: t("deptPages.logistics.subtitle"),
+      icon: Truck,
+      color: "from-orange-500 to-orange-600",
+      staff: [
+        { id: "15", name: "Kevin Martin", role: "Logistics Manager", status: "available" },
+        { id: "16", name: "Lisa Anderson", role: "Shipping Coordinator", status: "available" },
+      ],
+      activeCases: 5,
+      path: "/departments/logistics",
+    },
+    {
+      id: 8,
+      name: t("deptPages.inventory.title"),
+      description: t("deptPages.inventory.subtitle"),
+      icon: Package,
+      color: "from-pink-500 to-pink-600",
+      staff: [
+        { id: "17", name: "Carlos Garcia", role: "Inventory Manager", status: "available" },
+        { id: "18", name: "Yuki Tanaka", role: "Supply Coordinator", status: "busy" },
+      ],
+      activeCases: 3,
+      path: "/departments/inventory",
+    },
+    {
+      id: 9,
+      name: t("deptPages.financial.title"),
+      description: t("deptPages.financial.subtitle"),
+      icon: DollarSign,
+      color: "from-purple-500 to-purple-600",
+      staff: [
+        { id: "19", name: "Michael Torres", role: "Finance Manager", status: "available" },
+        { id: "20", name: "Angela White", role: "Billing Specialist", status: "available" },
+      ],
+      activeCases: 4,
+      path: "/departments/financial",
+    },
+    {
+      id: 10,
+      name: t("deptPages.continuousImprovement.title"),
+      description: t("deptPages.continuousImprovement.subtitle"),
+      icon: TrendingUp,
+      color: "from-indigo-500 to-indigo-600",
+      staff: [
+        { id: "21", name: "Dr. Amanda Foster", role: "Quality Director", status: "available" },
+        { id: "22", name: "Ryan Patel", role: "Process Analyst", status: "busy" },
+      ],
+      activeCases: 2,
+      path: "/departments/continuous-improvement",
+    },
+  ];
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDept, setSelectedDept] = useState<number | null>(null);
   const [showAddStaff, setShowAddStaff] = useState(false);
@@ -287,42 +290,41 @@ export default function Departments() {
     <Layout>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          Departments Management
+          {t("departments.title")}
         </h1>
         <p className="text-muted-foreground">
-          Manage all {totalDepartments} departments, team assignments, and
-          department-level performance
+          {t("departments.subtitle", { count: totalDepartments })}
         </p>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="dlos-card flex items-center gap-4">
+        <div className="bg-card border rounded-lg p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
             <Users className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Total Staff</p>
+            <p className="text-sm text-muted-foreground">{t("departments.totalStaff")}</p>
             <p className="text-2xl font-bold text-foreground">{totalStaff}</p>
           </div>
         </div>
-        <div className="dlos-card flex items-center gap-4">
+        <div className="bg-card border rounded-lg p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
             <Briefcase className="w-6 h-6 text-accent" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Active Cases</p>
+            <p className="text-sm text-muted-foreground">{t("departments.activeCases")}</p>
             <p className="text-2xl font-bold text-foreground">
               {totalActiveCases}
             </p>
           </div>
         </div>
-        <div className="dlos-card flex items-center gap-4">
+        <div className="bg-card border rounded-lg p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
             <ClipboardList className="w-6 h-6 text-green-600" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Departments</p>
+            <p className="text-sm text-muted-foreground">{t("nav.departments")}</p>
             <p className="text-2xl font-bold text-foreground">
               {totalDepartments}
             </p>
@@ -335,7 +337,7 @@ export default function Departments() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <input
           type="text"
-          placeholder="Search departments..."
+          placeholder={t("departments.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground"
@@ -352,7 +354,7 @@ export default function Departments() {
               return (
                 <div
                   key={dept.id}
-                  className={`dlos-card cursor-pointer transition-all duration-200 ${
+                  className={`bg-card border rounded-lg p-5 cursor-pointer transition-all duration-200 ${
                     isSelected
                       ? "ring-2 ring-primary border-primary shadow-lg"
                       : "hover:shadow-md hover:-translate-y-0.5"
@@ -366,7 +368,7 @@ export default function Departments() {
                       <IconComponent className="w-5 h-5 text-white" />
                     </div>
                     <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary text-xs font-semibold rounded">
-                      {dept.staff.length} staff
+                      {dept.staff.length} {t("common.staff")}
                     </span>
                   </div>
 
@@ -383,13 +385,13 @@ export default function Departments() {
                         <span className="font-semibold text-foreground">
                           {dept.staff.length}
                         </span>
-                        <p className="text-muted-foreground">Staff</p>
+                        <p className="text-muted-foreground">{t("common.staff")}</p>
                       </div>
                       <div>
                         <span className="font-semibold text-foreground">
                           {dept.activeCases}
                         </span>
-                        <p className="text-muted-foreground">Active</p>
+                        <p className="text-muted-foreground">{t("common.active")}</p>
                       </div>
                     </div>
                   </div>
@@ -400,7 +402,7 @@ export default function Departments() {
                       className="text-xs text-primary hover:underline flex items-center gap-1 font-medium"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Open Department <ArrowRight className="w-3 h-3" />
+                      {t("departments.openDepartment")} <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>
                 </div>
@@ -408,16 +410,16 @@ export default function Departments() {
             })}
 
             {filteredDepartments.length === 0 && (
-              <div className="col-span-full dlos-card flex flex-col items-center justify-center py-12 text-center">
+              <div className="col-span-full bg-card border rounded-lg flex flex-col items-center justify-center py-12 text-center">
                 <Search className="w-10 h-10 text-muted-foreground mb-3" />
                 <p className="text-muted-foreground font-medium">
-                  No departments match &ldquo;{searchQuery}&rdquo;
+                  {t("departments.noMatch", { query: searchQuery })}
                 </p>
                 <button
                   onClick={() => setSearchQuery("")}
                   className="text-primary text-sm mt-2 hover:underline"
                 >
-                  Clear search
+                  {t("common.clearSearch")}
                 </button>
               </div>
             )}
@@ -427,7 +429,7 @@ export default function Departments() {
         {/* Department Detail Panel */}
         <div className="lg:col-span-1">
           {selectedDepartment ? (
-            <div className="dlos-card sticky top-20">
+            <div className="bg-card border rounded-lg p-6 sticky top-20">
               <div className="flex items-center gap-3 mb-6">
                 <div
                   className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${selectedDepartment.color}`}
@@ -452,7 +454,7 @@ export default function Departments() {
                       {selectedDepartment.staff.length}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Staff Members
+                      {t("departments.staffMembers")}
                     </p>
                   </div>
                   <div className="rounded-lg bg-secondary p-3 text-center">
@@ -460,7 +462,7 @@ export default function Departments() {
                       {selectedDepartment.activeCases}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Active Cases
+                      {t("departments.activeCases")}
                     </p>
                   </div>
                 </div>
@@ -468,7 +470,7 @@ export default function Departments() {
                 {/* Team Members */}
                 <div>
                   <h3 className="font-semibold text-foreground mb-3 text-sm">
-                    Team Members ({selectedDepartment.staff.length})
+                    {t("departments.teamMembers", { count: selectedDepartment.staff.length })}
                   </h3>
                   <div className="space-y-2 max-h-56 overflow-y-auto">
                     {selectedDepartment.staff.map((member) => (
@@ -497,7 +499,7 @@ export default function Departments() {
                         <span
                           className={`text-xs px-2 py-0.5 rounded whitespace-nowrap ${getStatusColor(member.status)}`}
                         >
-                          {member.status}
+                          {member.status === "available" ? t("common.available") : member.status === "busy" ? t("common.busy") : t("common.offline")}
                         </span>
                         <button
                           onClick={() =>
@@ -523,24 +525,24 @@ export default function Departments() {
                     onClick={() => setShowAddStaff(true)}
                   >
                     <Plus className="w-3 h-3 mr-2" />
-                    Add Staff Member
+                    {t("departments.addStaffMember")}
                   </Button>
 
                   <Link to={selectedDepartment.path}>
                     <Button variant="outline" className="w-full" size="sm">
                       <ArrowRight className="w-3 h-3 mr-2" />
-                      Go to Department Page
+                      {t("departments.goToDeptPage")}
                     </Button>
                   </Link>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="dlos-card h-64 flex items-center justify-center sticky top-20">
+            <div className="bg-card border rounded-lg h-64 flex items-center justify-center sticky top-20">
               <div className="text-center">
                 <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                 <p className="text-muted-foreground text-sm">
-                  Select a department to view details
+                  {t("departments.selectDept")}
                 </p>
               </div>
             </div>
@@ -554,7 +556,7 @@ export default function Departments() {
           <div className="bg-card rounded-lg border border-border shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between p-6 border-b border-border">
               <h2 className="text-lg font-bold text-foreground">
-                Add Staff to {selectedDepartment.name}
+                {t("departments.addStaffTo", { name: selectedDepartment.name })}
               </h2>
               <button
                 onClick={() => setShowAddStaff(false)}
@@ -566,7 +568,7 @@ export default function Departments() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  Name *
+                  {t("common.name")} *
                 </label>
                 <input
                   type="text"
@@ -574,13 +576,13 @@ export default function Departments() {
                   onChange={(e) =>
                     setNewStaff({ ...newStaff, name: e.target.value })
                   }
-                  placeholder="Full name"
+                  placeholder={t("departments.fullName")}
                   className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  Role *
+                  {t("common.role")} *
                 </label>
                 <input
                   type="text"
@@ -588,13 +590,13 @@ export default function Departments() {
                   onChange={(e) =>
                     setNewStaff({ ...newStaff, role: e.target.value })
                   }
-                  placeholder="e.g. CAD Designer, Technician"
+                  placeholder={t("departments.rolePlaceholder")}
                   className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1">
-                  Status
+                  {t("common.status")}
                 </label>
                 <select
                   value={newStaff.status}
@@ -606,9 +608,9 @@ export default function Departments() {
                   }
                   className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="available">Available</option>
-                  <option value="busy">Busy</option>
-                  <option value="offline">Offline</option>
+                  <option value="available">{t("common.available")}</option>
+                  <option value="busy">{t("common.busy")}</option>
+                  <option value="offline">{t("common.offline")}</option>
                 </select>
               </div>
             </div>
@@ -617,7 +619,7 @@ export default function Departments() {
                 variant="outline"
                 onClick={() => setShowAddStaff(false)}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 onClick={handleAddStaff}
@@ -626,7 +628,7 @@ export default function Departments() {
                 }
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Staff
+                {t("departments.addStaff")}
               </Button>
             </div>
           </div>

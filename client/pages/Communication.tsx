@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -176,6 +177,7 @@ const typeConfig = {
 };
 
 export default function Communication() {
+  const { t } = useTranslation();
   const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
   const [logs, setLogs] = useState<CommunicationLog[]>(initialLogs);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
@@ -289,10 +291,10 @@ export default function Communication() {
     <Layout>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          Doctor Communication
+          {t("communication.title")}
         </h1>
         <p className="text-muted-foreground">
-          Professional communication, feedback management, and case updates
+          {t("communication.subtitle")}
         </p>
       </div>
 
@@ -301,7 +303,7 @@ export default function Communication() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
           <p className="text-sm text-blue-800">
-            You have <strong>{unreadCount}</strong> unread message{unreadCount !== 1 ? "s" : ""}
+            {t("communication.unreadBanner", { count: unreadCount })}
           </p>
           <Button
             size="sm"
@@ -309,7 +311,7 @@ export default function Communication() {
             className="ml-auto"
             onClick={() => setLogs(logs.map((l) => ({ ...l, read: true })))}
           >
-            Mark All Read
+            {t("communication.markAsRead")}
           </Button>
         </div>
       )}
@@ -317,9 +319,9 @@ export default function Communication() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Doctors List */}
         <div className="lg:col-span-1">
-          <div className="dlos-card">
+          <div className="bg-card border rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-foreground">Doctors</h2>
+              <h2 className="text-lg font-bold text-foreground">{t("communication.doctors")}</h2>
               <Button size="sm" variant="outline" onClick={() => setShowAddDoctor(true)}>
                 <UserPlus className="w-4 h-4" />
               </Button>
@@ -329,7 +331,7 @@ export default function Communication() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search doctors..."
+                placeholder={t("cases.searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-md border border-border bg-background text-foreground placeholder-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -364,7 +366,7 @@ export default function Communication() {
                     <p className="text-xs text-muted-foreground truncate">{doc.clinic}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                        {doc.activeCases} active
+                        {doc.activeCases} {t("common.active")}
                       </span>
                     </div>
                   </button>
@@ -379,7 +381,7 @@ export default function Communication() {
           {selectedDoctorData ? (
             <div className="space-y-6">
               {/* Doctor Details Card */}
-              <div className="dlos-card">
+              <div className="bg-card border rounded-lg p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h2 className="text-xl font-bold text-foreground">{selectedDoctorData.name}</h2>
@@ -394,26 +396,26 @@ export default function Communication() {
                     </Button>
                     <Button size="sm" onClick={() => setShowCompose(true)}>
                       <Send className="w-4 h-4 mr-2" />
-                      New Message
+                      {t("communication.newMessage")}
                     </Button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-border">
                   <div>
-                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="text-xs text-muted-foreground">{t("communication.emailLabel")}</p>
                     <p className="text-sm font-medium text-foreground truncate">{selectedDoctorData.email}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Phone</p>
+                    <p className="text-xs text-muted-foreground">{t("communication.phoneLabel")}</p>
                     <p className="text-sm font-medium text-foreground">{selectedDoctorData.phone}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Active Cases</p>
+                    <p className="text-xs text-muted-foreground">{t("communication.activeCasesLabel")}</p>
                     <p className="text-sm font-medium text-primary">{selectedDoctorData.activeCases}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Messages</p>
+                    <p className="text-xs text-muted-foreground">{t("communication.messagesLabel")}</p>
                     <p className="text-sm font-medium text-foreground">{doctorLogs.length}</p>
                   </div>
                 </div>
@@ -421,9 +423,9 @@ export default function Communication() {
 
               {/* Compose Message Form */}
               {showCompose && (
-                <div className="dlos-card border-primary/50">
+                <div className="bg-card border rounded-lg p-6 border-primary/50">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-foreground">New Message</h3>
+                    <h3 className="text-lg font-bold text-foreground">{t("communication.newMessage")}</h3>
                     <button
                       onClick={() => setShowCompose(false)}
                       className="p-1 hover:bg-secondary rounded-md"
@@ -434,20 +436,20 @@ export default function Communication() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Type</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">{t("communication.typeLabel")}</label>
                         <select
                           value={composeData.type}
                           onChange={(e) => setComposeData({ ...composeData, type: e.target.value as CommunicationLog["type"] })}
                           className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         >
-                          <option value="update">Update</option>
-                          <option value="feedback">Feedback</option>
-                          <option value="issue">Issue</option>
-                          <option value="approval">Approval Request</option>
+                          <option value="update">{t("communication.updateType")}</option>
+                          <option value="feedback">{t("communication.feedbackType")}</option>
+                          <option value="issue">{t("communication.issueType")}</option>
+                          <option value="approval">{t("communication.approvalType")}</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Case ID</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">{t("communication.caseIdLabel")}</label>
                         <input
                           type="text"
                           value={composeData.caseId}
@@ -457,48 +459,48 @@ export default function Communication() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Priority</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">{t("common.priority")}</label>
                         <select
                           value={composeData.priority}
                           onChange={(e) => setComposeData({ ...composeData, priority: e.target.value as CommunicationLog["priority"] })}
                           className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         >
-                          <option value="low">Low</option>
-                          <option value="medium">Medium</option>
-                          <option value="high">High</option>
+                          <option value="low">{t("cases.low")}</option>
+                          <option value="medium">{t("cases.medium")}</option>
+                          <option value="high">{t("cases.high")}</option>
                         </select>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-1">Subject *</label>
+                      <label className="block text-sm font-medium text-foreground mb-1">{t("communication.subject")}</label>
                       <input
                         type="text"
                         value={composeData.subject}
                         onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
-                        placeholder="Enter message subject..."
+                        placeholder={t("communication.enterSubject")}
                         className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-1">Message *</label>
+                      <label className="block text-sm font-medium text-foreground mb-1">{t("communication.message")}</label>
                       <textarea
                         value={composeData.message}
                         onChange={(e) => setComposeData({ ...composeData, message: e.target.value })}
-                        placeholder="Type your message..."
+                        placeholder={t("communication.typeMessage")}
                         rows={4}
                         className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                       />
                     </div>
                     <div className="flex gap-2 justify-end">
                       <Button variant="outline" onClick={() => setShowCompose(false)}>
-                        Cancel
+                        {t("common.cancel")}
                       </Button>
                       <Button
                         onClick={handleSendMessage}
                         disabled={!composeData.subject.trim() || !composeData.message.trim()}
                       >
                         <Send className="w-4 h-4 mr-2" />
-                        Send Message
+                        {t("communication.sendMessage")}
                       </Button>
                     </div>
                   </div>
@@ -506,8 +508,8 @@ export default function Communication() {
               )}
 
               {/* Communication Logs */}
-              <div className="dlos-card">
-                <h3 className="text-lg font-bold text-foreground mb-4">Communication History</h3>
+              <div className="bg-card border rounded-lg p-6">
+                <h3 className="text-lg font-bold text-foreground mb-4">{t("communication.communicationHistory")}</h3>
 
                 <div className="space-y-3 max-h-[400px] overflow-y-auto">
                   {doctorLogs.length > 0 ? (
@@ -564,7 +566,7 @@ export default function Communication() {
                     })
                   ) : (
                     <p className="text-sm text-muted-foreground text-center py-4">
-                      No communication history with this doctor
+                      {t("communication.noHistory")}
                     </p>
                   )}
                 </div>
@@ -572,7 +574,7 @@ export default function Communication() {
 
               {/* Message Detail with Replies */}
               {selectedLogData && (
-                <div className="dlos-card">
+                <div className="bg-card border rounded-lg p-6">
                   <div className="flex items-start justify-between mb-4 pb-4 border-b border-border">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
@@ -605,7 +607,7 @@ export default function Communication() {
                   {/* Replies */}
                   {selectedLogData.replies.length > 0 && (
                     <div className="mb-6 space-y-3">
-                      <h4 className="text-sm font-semibold text-foreground">Replies</h4>
+                      <h4 className="text-sm font-semibold text-foreground">{t("communication.repliesLabel")}</h4>
                       {selectedLogData.replies.map((reply) => (
                         <div key={reply.id} className="p-3 bg-secondary/50 rounded-md border border-border">
                           <div className="flex items-center justify-between mb-2">
@@ -623,7 +625,7 @@ export default function Communication() {
                     <textarea
                       value={replyText}
                       onChange={(e) => setReplyText(e.target.value)}
-                      placeholder="Type your reply..."
+                      placeholder={t("communication.typeReply")}
                       rows={3}
                       className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none mb-3"
                     />
@@ -633,7 +635,7 @@ export default function Communication() {
                         disabled={!replyText.trim()}
                       >
                         <Reply className="w-4 h-4 mr-2" />
-                        Send Reply
+                        {t("common.reply")}
                       </Button>
                     </div>
                   </div>
@@ -641,10 +643,10 @@ export default function Communication() {
               )}
             </div>
           ) : (
-            <div className="dlos-card h-64 flex items-center justify-center">
+            <div className="bg-card border rounded-lg h-64 flex items-center justify-center">
               <div className="text-center">
                 <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Select a doctor to view communication history</p>
+                <p className="text-muted-foreground">{t("communication.selectDoctor")}</p>
               </div>
             </div>
           )}
@@ -656,14 +658,14 @@ export default function Communication() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-lg border border-border shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-xl font-bold text-foreground">Add Doctor</h2>
+              <h2 className="text-xl font-bold text-foreground">{t("communication.addDoctor")}</h2>
               <button onClick={() => setShowAddDoctor(false)} className="p-1 hover:bg-secondary rounded-md">
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Doctor Name *</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t("communication.doctorName")}</label>
                 <input
                   type="text"
                   value={newDoctor.name}
@@ -673,7 +675,7 @@ export default function Communication() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Clinic *</label>
+                <label className="block text-sm font-medium text-foreground mb-1">{t("communication.clinic")}</label>
                 <input
                   type="text"
                   value={newDoctor.clinic}
@@ -704,10 +706,10 @@ export default function Communication() {
               </div>
             </div>
             <div className="flex gap-3 p-6 border-t border-border justify-end">
-              <Button variant="outline" onClick={() => setShowAddDoctor(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowAddDoctor(false)}>{t("common.cancel")}</Button>
               <Button onClick={handleAddDoctor} disabled={!newDoctor.name.trim() || !newDoctor.clinic.trim()}>
                 <UserPlus className="w-4 h-4 mr-2" />
-                Add Doctor
+                {t("communication.addDoctor")}
               </Button>
             </div>
           </div>
@@ -716,40 +718,40 @@ export default function Communication() {
 
       {/* Communication Standards */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-primary" />
-            Professional Tone
+            {t("communication.professionalTone")}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Clear, respectful communication</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Clinical language for doctors</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Suggest improvements tactfully</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Provide visual feedback when needed</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.clearRespectful")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.clinicalLanguage")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.suggestImprovements")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.visualFeedback")}</li>
           </ul>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Clock className="w-5 h-5 text-accent" />
-            Response Time
+            {t("communication.responseTime")}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> High priority: 2-4 hours</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Medium priority: 24 hours</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Low priority: 2-3 business days</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> All communications logged</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.highPriority")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.mediumPriority")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.lowPriority")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.allLogged")}</li>
           </ul>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            Documentation
+            {t("communication.documentation")}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Complete audit trail</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> All messages archived</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Compliance verified</li>
-            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> Patient data protected</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.auditTrail")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.archived")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.complianceVerified")}</li>
+            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-accent" /> {t("communication.dataProtected")}</li>
           </ul>
         </div>
       </div>

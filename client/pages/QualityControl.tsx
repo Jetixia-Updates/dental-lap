@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -77,130 +78,131 @@ const mockQCCases: QCCase[] = [
   },
 ];
 
-const defaultChecklist: QCChecklist[] = [
-  {
-    id: "1",
-    category: "Marginal Fit & Adaptation",
-    items: [
-      {
-        id: "1-1",
-        name: "Marginal gaps ≤ 100μm",
-        standard: "ISO 13485 / FDA Guidelines",
-        completed: false,
-      },
-      {
-        id: "1-2",
-        name: "Internal fit verified",
-        standard: "Fit verification protocol",
-        completed: false,
-      },
-      {
-        id: "1-3",
-        name: "Margin integrity intact",
-        standard: "Visual inspection",
-        completed: false,
-      },
-    ],
-  },
-  {
-    id: "2",
-    category: "Occlusion & Contacts",
-    items: [
-      {
-        id: "2-1",
-        name: "Centric relation contact",
-        standard: "Occlusal verification",
-        completed: false,
-      },
-      {
-        id: "2-2",
-        name: "Eccentric movements smooth",
-        standard: "Functional analysis",
-        completed: false,
-      },
-      {
-        id: "2-3",
-        name: "Contact points verified",
-        standard: "Articulation test",
-        completed: false,
-      },
-    ],
-  },
-  {
-    id: "3",
-    category: "Shade & Aesthetics",
-    items: [
-      {
-        id: "3-1",
-        name: "Shade matches prescription",
-        standard: "Shade guide verification",
-        completed: false,
-      },
-      {
-        id: "3-2",
-        name: "Surface gloss appropriate",
-        standard: "Visual assessment",
-        completed: false,
-      },
-      {
-        id: "3-3",
-        name: "Anatomy and contours correct",
-        standard: "Design specification",
-        completed: false,
-      },
-    ],
-  },
-  {
-    id: "4",
-    category: "Material & Structure",
-    items: [
-      {
-        id: "4-1",
-        name: "Material integrity intact",
-        standard: "Material inspection",
-        completed: false,
-      },
-      {
-        id: "4-2",
-        name: "No cracks or defects",
-        standard: "Visual inspection",
-        completed: false,
-      },
-      {
-        id: "4-3",
-        name: "Thickness within spec",
-        standard: "Measurement verification",
-        completed: false,
-      },
-    ],
-  },
-  {
-    id: "5",
-    category: "Surface Finishing",
-    items: [
-      {
-        id: "5-1",
-        name: "Surface smooth and polished",
-        standard: "Finishing protocol",
-        completed: false,
-      },
-      {
-        id: "5-2",
-        name: "No scratches or marks",
-        standard: "Visual inspection",
-        completed: false,
-      },
-      {
-        id: "5-3",
-        name: "Cementation surface prepared",
-        standard: "Prep verification",
-        completed: false,
-      },
-    ],
-  },
-];
-
 export default function QualityControl() {
+  const { t } = useTranslation();
+
+  const defaultChecklist: QCChecklist[] = [
+    {
+      id: "1",
+      category: t("qualityControl.marginalFitAdaptation"),
+      items: [
+        {
+          id: "1-1",
+          name: t("qualityControl.marginalGaps"),
+          standard: t("qualityControl.isoFda"),
+          completed: false,
+        },
+        {
+          id: "1-2",
+          name: t("qualityControl.internalFitItem"),
+          standard: t("qualityControl.fitVerification"),
+          completed: false,
+        },
+        {
+          id: "1-3",
+          name: t("qualityControl.marginIntegrity"),
+          standard: t("qualityControl.visualInspection"),
+          completed: false,
+        },
+      ],
+    },
+    {
+      id: "2",
+      category: t("qualityControl.occlusionContacts"),
+      items: [
+        {
+          id: "2-1",
+          name: t("qualityControl.centricRelation"),
+          standard: t("qualityControl.occlusalVerification"),
+          completed: false,
+        },
+        {
+          id: "2-2",
+          name: t("qualityControl.eccentricMovements"),
+          standard: t("qualityControl.functionalAnalysis"),
+          completed: false,
+        },
+        {
+          id: "2-3",
+          name: t("qualityControl.contactPointsVerified"),
+          standard: t("qualityControl.articulationTest"),
+          completed: false,
+        },
+      ],
+    },
+    {
+      id: "3",
+      category: t("qualityControl.shadeAesthetics"),
+      items: [
+        {
+          id: "3-1",
+          name: t("qualityControl.shadeMatchesPrescription"),
+          standard: t("qualityControl.shadeGuide"),
+          completed: false,
+        },
+        {
+          id: "3-2",
+          name: t("qualityControl.surfaceGloss"),
+          standard: t("qualityControl.visualAssessment"),
+          completed: false,
+        },
+        {
+          id: "3-3",
+          name: t("qualityControl.anatomyContours"),
+          standard: t("qualityControl.designSpec"),
+          completed: false,
+        },
+      ],
+    },
+    {
+      id: "4",
+      category: t("qualityControl.materialStructure"),
+      items: [
+        {
+          id: "4-1",
+          name: t("qualityControl.materialIntegrity"),
+          standard: t("qualityControl.materialInspection"),
+          completed: false,
+        },
+        {
+          id: "4-2",
+          name: t("qualityControl.noCracksDefects"),
+          standard: t("qualityControl.visualInspection"),
+          completed: false,
+        },
+        {
+          id: "4-3",
+          name: t("qualityControl.thicknessSpec"),
+          standard: t("qualityControl.measurementVerification"),
+          completed: false,
+        },
+      ],
+    },
+    {
+      id: "5",
+      category: t("qualityControl.surfaceFinishingCat"),
+      items: [
+        {
+          id: "5-1",
+          name: t("qualityControl.surfaceSmooth"),
+          standard: t("qualityControl.finishingProtocol"),
+          completed: false,
+        },
+        {
+          id: "5-2",
+          name: t("qualityControl.noScratches"),
+          standard: t("qualityControl.visualInspection"),
+          completed: false,
+        },
+        {
+          id: "5-3",
+          name: t("qualityControl.cementationSurface"),
+          standard: t("qualityControl.prepVerification"),
+          completed: false,
+        },
+      ],
+    },
+  ];
   const [qcCases, setQcCases] = useState<QCCase[]>(mockQCCases);
   const [selectedCase, setSelectedCase] = useState<string | null>(null);
   const [checklist, setChecklist] = useState<QCChecklist[]>(defaultChecklist);
@@ -288,40 +290,40 @@ export default function QualityControl() {
     <Layout>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          Quality Control System
+          {t("qualityControl.title")}
         </h1>
         <p className="text-muted-foreground">
-          Comprehensive pre-delivery verification and quality assurance
+          {t("qualityControl.subtitle")}
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 animate-slideUp">
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="flex items-center gap-3 mb-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            <span className="text-sm text-muted-foreground">Passed</span>
+            <span className="text-sm text-muted-foreground">{t("qualityControl.passed")}</span>
           </div>
           <p className="text-3xl font-bold text-green-600">{passedCount}</p>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="flex items-center gap-3 mb-2">
             <Clock className="w-5 h-5 text-blue-600" />
-            <span className="text-sm text-muted-foreground">Pending</span>
+            <span className="text-sm text-muted-foreground">{t("qualityControl.pending")}</span>
           </div>
           <p className="text-3xl font-bold text-blue-600">{pendingCount}</p>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="flex items-center gap-3 mb-2">
             <AlertCircle className="w-5 h-5 text-amber-600" />
-            <span className="text-sm text-muted-foreground">Needs Review</span>
+            <span className="text-sm text-muted-foreground">{t("qualityControl.needsReview")}</span>
           </div>
           <p className="text-3xl font-bold text-amber-600">{needsReviewCount}</p>
         </div>
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-5">
           <div className="flex items-center gap-3 mb-2">
             <AlertTriangle className="w-5 h-5 text-red-600" />
-            <span className="text-sm text-muted-foreground">Failed</span>
+            <span className="text-sm text-muted-foreground">{t("qualityControl.failed")}</span>
           </div>
           <p className="text-3xl font-bold text-red-600">{failedCount}</p>
         </div>
@@ -330,8 +332,8 @@ export default function QualityControl() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cases List */}
         <div className="lg:col-span-1">
-          <div className="dlos-card">
-            <h2 className="text-lg font-bold text-foreground mb-4">Cases for QC</h2>
+          <div className="bg-card border rounded-lg p-6">
+            <h2 className="text-lg font-bold text-foreground mb-4">{t("qualityControl.casesForQC")}</h2>
 
             <div className="mb-4">
               <select
@@ -339,11 +341,11 @@ export default function QualityControl() {
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <option value="">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="passed">Passed</option>
-                <option value="failed">Failed</option>
-                <option value="needs-review">Needs Review</option>
+                <option value="">{t("cases.allStatuses")}</option>
+                <option value="pending">{t("qualityControl.pending")}</option>
+                <option value="passed">{t("qualityControl.passed")}</option>
+                <option value="failed">{t("qualityControl.failed")}</option>
+                <option value="needs-review">{t("qualityControl.needsReview")}</option>
               </select>
             </div>
 
@@ -377,7 +379,7 @@ export default function QualityControl() {
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">
-                  No cases found
+                  {t("common.noResults")}
                 </p>
               )}
             </div>
@@ -387,10 +389,10 @@ export default function QualityControl() {
         {/* QC Checklist */}
         <div className="lg:col-span-2">
           {selectedCaseData ? (
-            <div className="dlos-card">
+            <div className="bg-card border rounded-lg p-6">
               <div className="mb-6">
                 <h2 className="text-lg font-bold text-foreground mb-2">
-                  QC Verification Checklist
+                  {t("qualityControl.qcChecklist")}
                 </h2>
                 <p className="text-sm text-muted-foreground mb-4">
                   {selectedCaseData.caseId} - {selectedCaseData.caseType}
@@ -460,7 +462,7 @@ export default function QualityControl() {
                   disabled={completedItems < totalItems}
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Pass Case
+                  {t("qualityControl.passFinal")}
                 </Button>
                 <Button
                   onClick={handleFailCase}
@@ -468,14 +470,14 @@ export default function QualityControl() {
                   className="flex-1"
                 >
                   <AlertTriangle className="w-4 h-4 mr-2" />
-                  Needs Review
+                  {t("qualityControl.needsReview")}
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="dlos-card h-full flex items-center justify-center">
+            <div className="bg-card border rounded-lg h-full flex items-center justify-center">
               <p className="text-center text-muted-foreground">
-                Select a case to view QC checklist
+                {t("qualityControl.selectCase")}
               </p>
             </div>
           )}
@@ -484,33 +486,33 @@ export default function QualityControl() {
 
       {/* QC Standards */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Eye className="w-5 h-5 text-primary" />
-            Pre-Delivery Standards
+            {t("qualityControl.preDeliveryStandards")}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>✓ Marginal fit ≤ 100μm (ISO 13485)</li>
-            <li>✓ Occlusion verified and balanced</li>
-            <li>✓ Contact points appropriate</li>
-            <li>✓ Shade accuracy within ΔE2</li>
-            <li>✓ Surface finish polished</li>
-            <li>✓ No structural defects</li>
+            <li>✓ {t("qualityControl.marginalFit")}</li>
+            <li>✓ {t("qualityControl.occlusionVerified")}</li>
+            <li>✓ {t("qualityControl.contactPoints")}</li>
+            <li>✓ {t("qualityControl.shadeAccuracy")}</li>
+            <li>✓ {t("qualityControl.surfaceFinish")}</li>
+            <li>✓ {t("qualityControl.noStructuralDefects")}</li>
           </ul>
         </div>
 
-        <div className="dlos-card">
+        <div className="bg-card border rounded-lg p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-accent" />
-            Error Management Protocol
+            {t("qualityControl.errorManagementProtocol")}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>✓ Identify root cause immediately</li>
-            <li>✓ Classify error category</li>
-            <li>✓ Assign responsible department</li>
-            <li>✓ Document in system</li>
-            <li>✓ Notify doctor professionally</li>
-            <li>✓ Track for trend analysis</li>
+            <li>✓ {t("qualityControl.identifyRootCause")}</li>
+            <li>✓ {t("qualityControl.classifyError")}</li>
+            <li>✓ {t("qualityControl.assignDepartment")}</li>
+            <li>✓ {t("qualityControl.documentInSystem")}</li>
+            <li>✓ {t("qualityControl.notifyDoctor")}</li>
+            <li>✓ {t("qualityControl.trackTrendAnalysis")}</li>
           </ul>
         </div>
       </div>

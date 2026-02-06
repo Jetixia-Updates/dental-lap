@@ -2,32 +2,35 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Beaker, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [deptDropdownOpen, setDeptDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
-    { path: "/dashboard", label: "Dashboard" },
-    { path: "/cases", label: "Cases" },
-    { path: "/departments", label: "Departments", hasDropdown: true },
-    { path: "/quality-control", label: "QC" },
-    { path: "/communication", label: "Communication" },
+    { path: "/dashboard", label: t("nav.dashboard") },
+    { path: "/cases", label: t("nav.cases") },
+    { path: "/departments", label: t("nav.departments"), hasDropdown: true },
+    { path: "/quality-control", label: t("nav.qc") },
+    { path: "/communication", label: t("nav.communication") },
   ];
 
   const departmentLinks = [
-    { path: "/departments/reception", label: "Reception & Intake" },
-    { path: "/departments/case-planning", label: "Case Planning" },
-    { path: "/departments/model-scan", label: "Model & Scan" },
-    { path: "/departments/cad-design", label: "CAD Design" },
-    { path: "/departments/cam-production", label: "CAM / Milling" },
-    { path: "/departments/finishing", label: "Ceramic & Finishing" },
-    { path: "/departments/logistics", label: "Logistics & Delivery" },
-    { path: "/departments/inventory", label: "Inventory" },
-    { path: "/departments/financial", label: "Financial" },
-    { path: "/departments/continuous-improvement", label: "Continuous Improvement" },
+    { path: "/departments/reception", label: t("deptNames.receptionIntake") },
+    { path: "/departments/case-planning", label: t("deptNames.casePlanning") },
+    { path: "/departments/model-scan", label: t("deptNames.modelScan") },
+    { path: "/departments/cad-design", label: t("deptNames.cadDesign") },
+    { path: "/departments/cam-production", label: t("deptNames.camMilling") },
+    { path: "/departments/finishing", label: t("deptNames.ceramicFinishing") },
+    { path: "/departments/logistics", label: t("deptNames.logisticsDelivery") },
+    { path: "/departments/inventory", label: t("deptNames.inventory") },
+    { path: "/departments/financial", label: t("deptNames.financial") },
+    { path: "/departments/continuous-improvement", label: t("deptNames.continuousImprovement") },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -102,7 +105,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                           to="/departments"
                           className="block px-4 py-2 text-sm font-medium text-foreground hover:bg-secondary hover:text-primary transition-colors"
                         >
-                          All Departments
+                          {t("common.allDepartments")}
                         </Link>
                         <div className="my-1 border-t border-border" />
                         {departmentLinks.map((dept) => (
@@ -139,8 +142,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
             {/* Desktop Actions */}
             <div className="hidden md:flex items-center gap-3">
+              <LanguageSwitcher />
               <Link to="/dashboard">
-                <Button variant="outline" size="sm">Dashboard</Button>
+                <Button variant="outline" size="sm">{t("nav.dashboard")}</Button>
               </Link>
             </div>
 
@@ -172,7 +176,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
               {/* Mobile department sub-links */}
               <div className="pl-4 space-y-1 pt-1">
-                <p className="text-xs font-semibold text-muted-foreground px-3 py-1">Departments</p>
+                <p className="text-xs font-semibold text-muted-foreground px-3 py-1">{t("nav.departments")}</p>
                 {departmentLinks.map((dept) => (
                   <Link
                     key={dept.path}
@@ -190,10 +194,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
               <div className="flex gap-2 pt-3">
                 <Link to="/dashboard" className="flex-1">
-                  <Button variant="outline" size="sm" className="w-full">Dashboard</Button>
+                  <Button variant="outline" size="sm" className="w-full">{t("nav.dashboard")}</Button>
                 </Link>
                 <Link to="/cases" className="flex-1">
-                  <Button size="sm" className="w-full">New Case</Button>
+                  <Button size="sm" className="w-full">{t("common.newCase")}</Button>
                 </Link>
               </div>
             </nav>
@@ -211,44 +215,44 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="font-semibold text-foreground mb-4">DLOS Platform</h3>
+              <h3 className="font-semibold text-foreground mb-4">{t("footer.platform")}</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link></li>
-                <li><Link to="/cases" className="hover:text-primary transition-colors">Cases</Link></li>
-                <li><Link to="/quality-control" className="hover:text-primary transition-colors">Quality Control</Link></li>
+                <li><Link to="/dashboard" className="hover:text-primary transition-colors">{t("nav.dashboard")}</Link></li>
+                <li><Link to="/cases" className="hover:text-primary transition-colors">{t("nav.cases")}</Link></li>
+                <li><Link to="/quality-control" className="hover:text-primary transition-colors">{t("common.qualityControl")}</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Departments</h3>
+              <h3 className="font-semibold text-foreground mb-4">{t("footer.departments")}</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/departments/reception" className="hover:text-primary transition-colors">Reception</Link></li>
-                <li><Link to="/departments/cad-design" className="hover:text-primary transition-colors">CAD Design</Link></li>
-                <li><Link to="/departments/cam-production" className="hover:text-primary transition-colors">CAM Production</Link></li>
-                <li><Link to="/departments/finishing" className="hover:text-primary transition-colors">Finishing</Link></li>
+                <li><Link to="/departments/reception" className="hover:text-primary transition-colors">{t("footer.reception")}</Link></li>
+                <li><Link to="/departments/cad-design" className="hover:text-primary transition-colors">{t("footer.cadDesign")}</Link></li>
+                <li><Link to="/departments/cam-production" className="hover:text-primary transition-colors">{t("footer.camProduction")}</Link></li>
+                <li><Link to="/departments/finishing" className="hover:text-primary transition-colors">{t("footer.finishing")}</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Resources</h3>
+              <h3 className="font-semibold text-foreground mb-4">{t("footer.resources")}</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/departments/inventory" className="hover:text-primary transition-colors">Inventory</Link></li>
-                <li><Link to="/departments/financial" className="hover:text-primary transition-colors">Financial</Link></li>
-                <li><Link to="/departments/continuous-improvement" className="hover:text-primary transition-colors">Improvement</Link></li>
+                <li><Link to="/departments/inventory" className="hover:text-primary transition-colors">{t("footer.inventory")}</Link></li>
+                <li><Link to="/departments/financial" className="hover:text-primary transition-colors">{t("footer.financial")}</Link></li>
+                <li><Link to="/departments/continuous-improvement" className="hover:text-primary transition-colors">{t("footer.improvement")}</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-foreground mb-4">Communication</h3>
+              <h3 className="font-semibold text-foreground mb-4">{t("footer.communication")}</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/communication" className="hover:text-primary transition-colors">Doctor Messages</Link></li>
-                <li><Link to="/departments/logistics" className="hover:text-primary transition-colors">Logistics</Link></li>
+                <li><Link to="/communication" className="hover:text-primary transition-colors">{t("footer.doctorMessages")}</Link></li>
+                <li><Link to="/departments/logistics" className="hover:text-primary transition-colors">{t("footer.logistics")}</Link></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-border pt-8 flex flex-col md:flex-row items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} Dental Laboratory Operating System. All rights reserved.
+              {t("common.copyright", { year: new Date().getFullYear() })}
             </p>
             <p className="text-sm text-muted-foreground mt-4 md:mt-0">
-              ISO 13485 | FDA Compliant | Digital Dentistry Standards
+              {t("common.compliance")}
             </p>
           </div>
         </div>

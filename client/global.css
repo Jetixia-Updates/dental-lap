@@ -1,5 +1,6 @@
 /** @import must precede all other statements */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -108,6 +109,44 @@
     @apply bg-background text-foreground font-sans;
   }
 
+  /* RTL Support - Arabic font and layout */
+  [dir="rtl"] body {
+    font-family: "Cairo", "Inter", sans-serif;
+  }
+
+  [dir="rtl"] {
+    text-align: right;
+  }
+
+  /* Flip horizontal spacing and margins for RTL */
+  [dir="rtl"] .space-x-1 > :not([hidden]) ~ :not([hidden]),
+  [dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]),
+  [dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]),
+  [dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]),
+  [dir="rtl"] .space-x-6 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+
+  /* Flip flex row gap direction for RTL */
+  [dir="rtl"] .flex-row {
+    direction: rtl;
+  }
+
+  /* Ensure input fields are properly aligned in RTL */
+  [dir="rtl"] input,
+  [dir="rtl"] textarea,
+  [dir="rtl"] select {
+    text-align: right;
+  }
+
+  /* Fix icon margins in RTL - common gap patterns */
+  [dir="rtl"] .gap-1,
+  [dir="rtl"] .gap-2,
+  [dir="rtl"] .gap-3,
+  [dir="rtl"] .gap-4 {
+    direction: rtl;
+  }
+
   :where(p, span, li, h1, h2, h3, h4, h5, h6, a, button, label, td, th) {
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -143,5 +182,10 @@
 
   .dlos-section-title {
     @apply text-2xl font-bold text-foreground mb-8;
+  }
+
+  /* Smooth language switch transition */
+  .lang-transition * {
+    transition: none !important;
   }
 }

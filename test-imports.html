@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Imports</title>
+</head>
+<body>
+  <h1>Testing Department Imports</h1>
+  <div id="result"></div>
+  <script type="module">
+    const result = document.getElementById('result');
+    
+    try {
+      result.innerHTML += '<p>Testing imports...</p>';
+      
+      // Test imports
+      import('./client/pages/departments/Reception.tsx').then(() => {
+        result.innerHTML += '<p style="color: green">✓ Reception loaded</p>';
+      }).catch(e => {
+        result.innerHTML += `<p style="color: red">✗ Reception failed: ${e.message}</p>`;
+      });
+      
+      import('./client/pages/departments/TestSimple.tsx').then(() => {
+        result.innerHTML += '<p style="color: green">✓ TestSimple loaded</p>';
+      }).catch(e => {
+        result.innerHTML += `<p style="color: red">✗ TestSimple failed: ${e.message}</p>`;
+      });
+      
+    } catch (e) {
+      result.innerHTML += `<p style="color: red">Error: ${e.message}</p>`;
+    }
+  </script>
+</body>
+</html>

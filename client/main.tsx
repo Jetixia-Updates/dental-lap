@@ -1,38 +1,23 @@
 import "./global.css";
+import "./i18n";
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Cases from "./pages/Cases";
-import Departments from "./pages/Departments";
-import QualityControl from "./pages/QualityControl";
-import Communication from "./pages/Communication";
-import NotFound from "./pages/NotFound";
+import App from "./App";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const Root = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/cases" element={<Cases />} />
-          <Route path="/departments" element={<Departments />} />
-          <Route path="/quality-control" element={<QualityControl />} />
-          <Route path="/communication" element={<Communication />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <App />
     </TooltipProvider>
   </QueryClientProvider>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(<Root />);

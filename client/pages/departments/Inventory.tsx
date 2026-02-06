@@ -1,705 +1,191 @@
 import { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  Package,
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  AlertTriangle,
-  ShoppingCart,
-  ArrowUpDown,
-  X,
-  Check,
-  RotateCcw,
-  Boxes,
-  DollarSign,
-  Tags,
-  Truck,
+  Plus, Search, Trash2, Edit, Check, X, AlertTriangle, Package,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface Material {
-  id: number;
+  id: string;
   name: string;
   category: string;
-  sku: string;
+  supplier: string;
   currentStock: number;
   minStock: number;
   unit: string;
-  supplier: string;
   costPerUnit: number;
   lastRestocked: string;
-  location: string;
 }
 
-const initialMaterials: Material[] = [
-  {
-    id: 1,
-    name: "Zirconia Blocks",
-    category: "Ceramic",
-    sku: "ZRC-BLK-001",
-    currentStock: 45,
-    minStock: 20,
-    unit: "blocks",
-    supplier: "Ivoclar Vivadent",
-    costPerUnit: 85.0,
-    lastRestocked: "2026-01-28",
-    location: "Shelf A1",
-  },
-  {
-    id: 2,
-    name: "E.max Ingots",
-    category: "Ceramic",
-    sku: "EMX-ING-002",
-    currentStock: 8,
-    minStock: 15,
-    unit: "pcs",
-    supplier: "Ivoclar Vivadent",
-    costPerUnit: 42.5,
-    lastRestocked: "2026-01-15",
-    location: "Shelf A2",
-  },
-  {
-    id: 3,
-    name: "Cobalt-Chrome Powder",
-    category: "Metal",
-    sku: "CCR-PWD-003",
-    currentStock: 2500,
-    minStock: 1000,
-    unit: "grams",
-    supplier: "EOS GmbH",
-    costPerUnit: 0.35,
-    lastRestocked: "2026-02-01",
-    location: "Cabinet B1",
-  },
-  {
-    id: 4,
-    name: "PMMA Discs",
-    category: "Polymer",
-    sku: "PMM-DSC-004",
-    currentStock: 5,
-    minStock: 10,
-    unit: "blocks",
-    supplier: "Yamahachi Dental",
-    costPerUnit: 28.0,
-    lastRestocked: "2026-01-10",
-    location: "Shelf C1",
-  },
-  {
-    id: 5,
-    name: "Bonding Agent",
-    category: "Consumable",
-    sku: "BND-AGT-005",
-    currentStock: 120,
-    minStock: 50,
-    unit: "ml",
-    supplier: "3M Dental",
-    costPerUnit: 0.95,
-    lastRestocked: "2026-01-22",
-    location: "Cabinet D1",
-  },
-  {
-    id: 6,
-    name: "Polishing Paste",
-    category: "Consumable",
-    sku: "POL-PST-006",
-    currentStock: 3,
-    minStock: 10,
-    unit: "pcs",
-    supplier: "3M Dental",
-    costPerUnit: 18.5,
-    lastRestocked: "2026-01-05",
-    location: "Cabinet D2",
-  },
+const INITIAL: Material[] = [
+  { id: "MAT-001", name: "Zirconia Disc (98mm)", category: "Milling", supplier: "Kuraray Noritake", currentStock: 12, minStock: 5, unit: "disc", costPerUnit: 85, lastRestocked: "2026-01-28" },
+  { id: "MAT-002", name: "E-max Ingot HT A2", category: "Press", supplier: "Ivoclar", currentStock: 3, minStock: 10, unit: "ingot", costPerUnit: 42, lastRestocked: "2026-01-15" },
+  { id: "MAT-003", name: "PMMA Disc (98mm)", category: "Milling", supplier: "Ivoclar", currentStock: 20, minStock: 8, unit: "disc", costPerUnit: 25, lastRestocked: "2026-02-01" },
+  { id: "MAT-004", name: "Investment Powder", category: "Casting", supplier: "Bego", currentStock: 2, minStock: 5, unit: "kg", costPerUnit: 15, lastRestocked: "2026-01-20" },
+  { id: "MAT-005", name: "Diamond Bur Set", category: "Tools", supplier: "Komet", currentStock: 8, minStock: 3, unit: "set", costPerUnit: 35, lastRestocked: "2026-02-03" },
+  { id: "MAT-006", name: "Alginate Impression", category: "Impression", supplier: "GC America", currentStock: 15, minStock: 10, unit: "box", costPerUnit: 18, lastRestocked: "2026-02-04" },
 ];
 
-const emptyMaterial: Omit<Material, "id"> = {
-  name: "",
-  category: "Ceramic",
-  sku: "",
-  currentStock: 0,
-  minStock: 0,
-  unit: "pcs",
-  supplier: "",
-  costPerUnit: 0,
-  lastRestocked: new Date().toISOString().split("T")[0],
-  location: "",
-};
-
-const categories = ["Ceramic", "Metal", "Polymer", "Consumable"];
+const CATEGORIES = ["All", "Milling", "Press", "Casting", "Tools", "Impression", "Consumable"];
 
 export default function Inventory() {
-  const [materials, setMaterials] = useState<Material[]>(initialMaterials);
+  const { t } = useTranslation();
+  const [materials, setMaterials] = useState<Material[]>(INITIAL);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
-  const [sortBy, setSortBy] = useState<"name" | "stock">("name");
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<Material | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [addForm, setAddForm] = useState<Omit<Material, "id">>(emptyMaterial);
-  const [restockId, setRestockId] = useState<number | null>(null);
-  const [restockQty, setRestockQty] = useState("");
+  const [showLowOnly, setShowLowOnly] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ name: "", category: "Milling", supplier: "", currentStock: 0, minStock: 5, unit: "disc", costPerUnit: 0 });
 
-  // --- Derived data ---
-  const filtered = useMemo(() => {
-    let list = materials.filter((m) =>
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.sku.toLowerCase().includes(search.toLowerCase())
-    );
-    if (filterCategory !== "All") {
-      list = list.filter((m) => m.category === filterCategory);
-    }
-    list.sort((a, b) =>
-      sortBy === "name"
-        ? a.name.localeCompare(b.name)
-        : a.currentStock - b.currentStock
-    );
-    return list;
-  }, [materials, search, filterCategory, sortBy]);
+  const lowStockCount = useMemo(() => materials.filter(m => m.currentStock <= m.minStock).length, [materials]);
 
-  const lowStockItems = materials.filter((m) => m.currentStock <= m.minStock);
-  const totalValue = materials.reduce(
-    (sum, m) => sum + m.currentStock * m.costPerUnit,
-    0
-  );
-  const uniqueCategories = [...new Set(materials.map((m) => m.category))];
-  const uniqueSuppliers = [...new Set(materials.map((m) => m.supplier))];
-  const selectedMaterial = materials.find((m) => m.id === selectedId) ?? null;
+  const filtered = materials.filter(m => {
+    const matchSearch = `${m.id} ${m.name} ${m.supplier}`.toLowerCase().includes(search.toLowerCase());
+    const matchCat = filterCategory === "All" || m.category === filterCategory;
+    const matchLow = !showLowOnly || m.currentStock <= m.minStock;
+    return matchSearch && matchCat && matchLow;
+  });
 
-  // --- Handlers ---
-  function handleAdd() {
-    const newId = Math.max(0, ...materials.map((m) => m.id)) + 1;
-    setMaterials((prev) => [...prev, { ...addForm, id: newId }]);
-    setAddForm(emptyMaterial);
-    setShowAddModal(false);
-  }
-
-  function handleDelete(id: number) {
-    setMaterials((prev) => prev.filter((m) => m.id !== id));
-    if (selectedId === id) setSelectedId(null);
-    if (editingId === id) {
-      setEditingId(null);
-      setEditForm(null);
-    }
-  }
-
-  function startEdit(mat: Material) {
-    setEditingId(mat.id);
-    setEditForm({ ...mat });
-  }
-
-  function saveEdit() {
-    if (!editForm) return;
-    setMaterials((prev) =>
-      prev.map((m) => (m.id === editForm.id ? editForm : m))
-    );
+  const resetForm = () => {
+    setForm({ name: "", category: "Milling", supplier: "", currentStock: 0, minStock: 5, unit: "disc", costPerUnit: 0 });
     setEditingId(null);
-    setEditForm(null);
-  }
+    setShowForm(false);
+  };
 
-  function cancelEdit() {
-    setEditingId(null);
-    setEditForm(null);
-  }
+  const handleSubmit = () => {
+    if (!form.name || !form.supplier) return;
+    if (editingId) {
+      setMaterials(prev => prev.map(m => m.id === editingId ? { ...m, ...form } : m));
+    } else {
+      const nextId = `MAT-${String(materials.length + 1).padStart(3, "0")}`;
+      setMaterials(prev => [...prev, { ...form, id: nextId, lastRestocked: new Date().toISOString().split("T")[0] }]);
+    }
+    resetForm();
+  };
 
-  function handleRestock(id: number) {
-    const qty = parseInt(restockQty, 10);
-    if (isNaN(qty) || qty <= 0) return;
-    setMaterials((prev) =>
-      prev.map((m) =>
-        m.id === id
-          ? {
-              ...m,
-              currentStock: m.currentStock + qty,
-              lastRestocked: new Date().toISOString().split("T")[0],
-            }
-          : m
-      )
-    );
-    setRestockId(null);
-    setRestockQty("");
-  }
+  const startEdit = (m: Material) => {
+    setForm({ name: m.name, category: m.category, supplier: m.supplier, currentStock: m.currentStock, minStock: m.minStock, unit: m.unit, costPerUnit: m.costPerUnit });
+    setEditingId(m.id);
+    setShowForm(true);
+  };
 
-  function handleOrderNow(id: number) {
-    setMaterials((prev) =>
-      prev.map((m) =>
-        m.id === id
-          ? {
-              ...m,
-              currentStock: m.minStock * 2,
-              lastRestocked: new Date().toISOString().split("T")[0],
-            }
-          : m
-      )
-    );
-  }
+  const restock = (id: string, qty: number) => {
+    setMaterials(prev => prev.map(m => m.id === id
+      ? { ...m, currentStock: m.currentStock + qty, lastRestocked: new Date().toISOString().split("T")[0] }
+      : m
+    ));
+  };
 
-  const isLow = (m: Material) => m.currentStock <= m.minStock;
+  const totalValue = useMemo(() => materials.reduce((sum, m) => sum + m.currentStock * m.costPerUnit, 0), [materials]);
 
   return (
     <Layout>
-      <div className="space-y-6 p-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Package className="h-7 w-7 text-primary" />
-              Inventory &amp; Materials
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Track stock levels, manage materials, and handle reordering
-            </p>
+            <h1 className="text-3xl font-bold flex items-center gap-2"><Package className="w-8 h-8" /> {t("deptPages.inventory.title")}</h1>
+            <p className="text-muted-foreground mt-1">{t("deptPages.inventory.subtitle")}</p>
           </div>
-          <Button onClick={() => setShowAddModal(true)} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Material
-          </Button>
+          <Button onClick={() => { resetForm(); setShowForm(true); }}><Plus className="w-4 h-4 mr-2" /> Add Material</Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="dlos-card p-5 flex items-center gap-4">
-            <div className="rounded-full bg-blue-100 p-3 text-blue-600">
-              <Boxes className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Materials</p>
-              <p className="text-2xl font-bold">{materials.length}</p>
-            </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-card border rounded-lg p-4">
+            <p className="text-sm text-muted-foreground">Total Items</p>
+            <p className="text-2xl font-bold">{materials.length}</p>
           </div>
-          <div className="dlos-card p-5 flex items-center gap-4">
-            <div className="rounded-full bg-red-100 p-3 text-red-600">
-              <AlertTriangle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Low Stock Alerts</p>
-              <p className="text-2xl font-bold text-red-600">
-                {lowStockItems.length}
-              </p>
-            </div>
+          <div className="bg-card border rounded-lg p-4">
+            <p className="text-sm text-muted-foreground">Low Stock</p>
+            <p className="text-2xl font-bold text-red-600">{lowStockCount}</p>
           </div>
-          <div className="dlos-card p-5 flex items-center gap-4">
-            <div className="rounded-full bg-purple-100 p-3 text-purple-600">
-              <Tags className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Categories</p>
-              <p className="text-2xl font-bold">{uniqueCategories.length}</p>
-            </div>
+          <div className="bg-card border rounded-lg p-4">
+            <p className="text-sm text-muted-foreground">Total Value</p>
+            <p className="text-2xl font-bold text-green-600">${totalValue.toLocaleString()}</p>
           </div>
-          <div className="dlos-card p-5 flex items-center gap-4">
-            <div className="rounded-full bg-green-100 p-3 text-green-600">
-              <DollarSign className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Value</p>
-              <p className="text-2xl font-bold">
-                ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
+          <div className="bg-card border rounded-lg p-4">
+            <p className="text-sm text-muted-foreground">Categories</p>
+            <p className="text-2xl font-bold">{new Set(materials.map(m => m.category)).size}</p>
           </div>
         </div>
 
-        {/* Search / Filter / Sort */}
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search by name or SKU..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-md border border-input bg-background pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+            <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+            <Input placeholder="Search materials..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
           </div>
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="All">All Categories</option>
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+          <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
           </select>
-          <Button
-            variant="outline"
-            className="gap-2"
-            onClick={() => setSortBy(sortBy === "name" ? "stock" : "name")}
-          >
-            <ArrowUpDown className="h-4 w-4" />
-            Sort: {sortBy === "name" ? "Name" : "Stock"}
+          <Button variant={showLowOnly ? "default" : "outline"} size="sm" onClick={() => setShowLowOnly(!showLowOnly)} className="flex items-center gap-1">
+            <AlertTriangle className="w-4 h-4" /> Low Stock ({lowStockCount})
           </Button>
         </div>
 
-        {/* Main content: list + detail */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Material list */}
-          <div className="lg:col-span-2 space-y-3">
-            {filtered.length === 0 && (
-              <div className="dlos-card p-8 text-center text-muted-foreground">
-                No materials found.
+        {showForm && (
+          <div className="bg-card border rounded-lg p-6 space-y-4">
+            <h2 className="text-lg font-semibold">{editingId ? "Edit Material" : "Add New Material"}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div><Label>Name *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Material name" /></div>
+              <div>
+                <Label>Category</Label>
+                <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm">
+                  {CATEGORIES.filter(c => c !== "All").map(c => <option key={c}>{c}</option>)}
+                </select>
               </div>
-            )}
-            {filtered.map((mat) => {
-              const low = isLow(mat);
-              const editing = editingId === mat.id;
-              return (
-                <div
-                  key={mat.id}
-                  className={`dlos-card p-4 cursor-pointer transition-all ${
-                    low ? "border-red-400 bg-red-50/60" : ""
-                  } ${selectedId === mat.id ? "ring-2 ring-primary" : ""}`}
-                  onClick={() => {
-                    if (!editing) setSelectedId(mat.id);
-                  }}
-                >
-                  {editing && editForm ? (
-                    /* ---- Inline edit mode ---- */
-                    <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Name</label>
-                          <input
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.name}
-                            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">SKU</label>
-                          <input
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.sku}
-                            onChange={(e) => setEditForm({ ...editForm, sku: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Category</label>
-                          <select
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.category}
-                            onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                          >
-                            {categories.map((c) => (
-                              <option key={c} value={c}>{c}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Unit</label>
-                          <input
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.unit}
-                            onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Current Stock</label>
-                          <input
-                            type="number"
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.currentStock}
-                            onChange={(e) => setEditForm({ ...editForm, currentStock: Number(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Min Stock</label>
-                          <input
-                            type="number"
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.minStock}
-                            onChange={(e) => setEditForm({ ...editForm, minStock: Number(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Supplier</label>
-                          <input
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.supplier}
-                            onChange={(e) => setEditForm({ ...editForm, supplier: e.target.value })}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Cost/Unit ($)</label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.costPerUnit}
-                            onChange={(e) => setEditForm({ ...editForm, costPerUnit: Number(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Location</label>
-                          <input
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                            value={editForm.location}
-                            onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex gap-2 justify-end">
-                        <Button size="sm" variant="ghost" onClick={cancelEdit}>
-                          <X className="h-4 w-4 mr-1" /> Cancel
-                        </Button>
-                        <Button size="sm" onClick={saveEdit}>
-                          <Check className="h-4 w-4 mr-1" /> Save
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* ---- Display mode ---- */
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold truncate">{mat.name}</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                            {mat.category}
-                          </span>
-                          {low && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" /> Low
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          SKU: {mat.sku} &bull; {mat.currentStock} / {mat.minStock} {mat.unit}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                        {/* Restock */}
-                        {restockId === mat.id ? (
-                          <div className="flex items-center gap-1">
-                            <input
-                              type="number"
-                              min="1"
-                              placeholder="Qty"
-                              value={restockQty}
-                              onChange={(e) => setRestockQty(e.target.value)}
-                              className="w-16 rounded border border-input bg-background px-2 py-1 text-sm"
-                            />
-                            <Button size="sm" variant="ghost" onClick={() => handleRestock(mat.id)}>
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button size="sm" variant="ghost" onClick={() => { setRestockId(null); setRestockQty(""); }}>
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            title="Restock"
-                            onClick={() => setRestockId(mat.id)}
-                          >
-                            <RotateCcw className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {low && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 border-red-300 gap-1"
-                            onClick={() => handleOrderNow(mat.id)}
-                          >
-                            <ShoppingCart className="h-3 w-3" /> Order Now
-                          </Button>
-                        )}
-                        <Button size="sm" variant="ghost" onClick={() => startEdit(mat)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDelete(mat.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Detail panel */}
-          <div className="space-y-4">
-            <div className="dlos-card p-5">
-              <h2 className="font-semibold mb-3">Material Details</h2>
-              {selectedMaterial ? (
-                <dl className="space-y-2 text-sm">
-                  {([
-                    ["Name", selectedMaterial.name],
-                    ["SKU", selectedMaterial.sku],
-                    ["Category", selectedMaterial.category],
-                    ["Current Stock", `${selectedMaterial.currentStock} ${selectedMaterial.unit}`],
-                    ["Min Stock", `${selectedMaterial.minStock} ${selectedMaterial.unit}`],
-                    ["Supplier", selectedMaterial.supplier],
-                    ["Cost / Unit", `$${selectedMaterial.costPerUnit.toFixed(2)}`],
-                    ["Location", selectedMaterial.location],
-                    ["Last Restocked", selectedMaterial.lastRestocked],
-                    [
-                      "Inventory Value",
-                      `$${(selectedMaterial.currentStock * selectedMaterial.costPerUnit).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}`,
-                    ],
-                  ] as [string, string][]).map(([label, value]) => (
-                    <div key={label} className="flex justify-between">
-                      <dt className="text-muted-foreground">{label}</dt>
-                      <dd className="font-medium text-right">{value}</dd>
-                    </div>
-                  ))}
-                  {isLow(selectedMaterial) && (
-                    <div className="mt-3 rounded-md bg-red-50 border border-red-200 p-3 text-red-700 text-xs flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4" />
-                      Stock is at or below minimum level. Reorder recommended.
-                    </div>
-                  )}
-                </dl>
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  Select a material to view details.
-                </p>
-              )}
+              <div><Label>Supplier *</Label><Input value={form.supplier} onChange={e => setForm({ ...form, supplier: e.target.value })} placeholder="Supplier name" /></div>
+              <div><Label>Current Stock</Label><Input type="number" value={form.currentStock} onChange={e => setForm({ ...form, currentStock: +e.target.value })} /></div>
+              <div><Label>Min Stock Level</Label><Input type="number" value={form.minStock} onChange={e => setForm({ ...form, minStock: +e.target.value })} /></div>
+              <div><Label>Unit</Label><Input value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })} placeholder="disc, kg, box..." /></div>
+              <div><Label>Cost Per Unit ($)</Label><Input type="number" value={form.costPerUnit} onChange={e => setForm({ ...form, costPerUnit: +e.target.value })} /></div>
             </div>
-          </div>
-        </div>
-
-        {/* Supplier directory */}
-        <div className="dlos-card p-5">
-          <h2 className="font-semibold flex items-center gap-2 mb-4">
-            <Truck className="h-5 w-5 text-primary" /> Supplier Directory
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {uniqueSuppliers.map((supplier) => {
-              const supplierMats = materials.filter((m) => m.supplier === supplier);
-              return (
-                <div key={supplier} className="rounded-lg border p-4">
-                  <p className="font-medium">{supplier}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {supplierMats.length} material{supplierMats.length !== 1 ? "s" : ""}
-                  </p>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {supplierMats.map((m) => (
-                      <span
-                        key={m.id}
-                        className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
-                      >
-                        {m.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Add Material Modal */}
-        {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-background rounded-lg shadow-xl w-full max-w-lg p-6 space-y-4 mx-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Add New Material</h2>
-                <Button size="sm" variant="ghost" onClick={() => setShowAddModal(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Name *</label>
-                  <input
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.name}
-                    onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">SKU *</label>
-                  <input
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.sku}
-                    onChange={(e) => setAddForm({ ...addForm, sku: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Category</label>
-                  <select
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.category}
-                    onChange={(e) => setAddForm({ ...addForm, category: e.target.value })}
-                  >
-                    {categories.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Unit</label>
-                  <input
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.unit}
-                    onChange={(e) => setAddForm({ ...addForm, unit: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Current Stock</label>
-                  <input
-                    type="number"
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.currentStock}
-                    onChange={(e) => setAddForm({ ...addForm, currentStock: Number(e.target.value) })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Min Stock</label>
-                  <input
-                    type="number"
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.minStock}
-                    onChange={(e) => setAddForm({ ...addForm, minStock: Number(e.target.value) })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Supplier</label>
-                  <input
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.supplier}
-                    onChange={(e) => setAddForm({ ...addForm, supplier: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Cost/Unit ($)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.costPerUnit}
-                    onChange={(e) => setAddForm({ ...addForm, costPerUnit: Number(e.target.value) })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="text-xs font-medium text-muted-foreground">Location</label>
-                  <input
-                    className="w-full rounded border border-input bg-background px-2 py-1 text-sm"
-                    value={addForm.location}
-                    onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setShowAddModal(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAdd} disabled={!addForm.name || !addForm.sku}>
-                  <Plus className="h-4 w-4 mr-1" /> Add Material
-                </Button>
-              </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={resetForm}><X className="w-4 h-4 mr-1" /> Cancel</Button>
+              <Button onClick={handleSubmit} disabled={!form.name || !form.supplier}><Check className="w-4 h-4 mr-1" /> {editingId ? "Update" : "Add"}</Button>
             </div>
           </div>
         )}
+
+        <div className="bg-card border rounded-lg overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50">
+              <tr>
+                {["ID", "Name", "Category", "Supplier", "Stock", "Min", "Unit Cost", "Value", "Actions"].map(h => (
+                  <th key={h} className="text-left px-4 py-3 font-medium text-muted-foreground">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">No materials found</td></tr>
+              ) : filtered.map(m => (
+                <tr key={m.id} className={`border-t hover:bg-muted/30 ${m.currentStock <= m.minStock ? "bg-red-50" : ""}`}>
+                  <td className="px-4 py-3 font-mono text-xs">{m.id}</td>
+                  <td className="px-4 py-3 font-medium">
+                    {m.name}
+                    {m.currentStock <= m.minStock && <AlertTriangle className="w-3 h-3 text-red-500 inline ml-1" />}
+                  </td>
+                  <td className="px-4 py-3"><span className="px-2 py-0.5 rounded bg-muted text-xs">{m.category}</span></td>
+                  <td className="px-4 py-3">{m.supplier}</td>
+                  <td className="px-4 py-3 font-semibold">{m.currentStock} {m.unit}</td>
+                  <td className="px-4 py-3">{m.minStock}</td>
+                  <td className="px-4 py-3">${m.costPerUnit}</td>
+                  <td className="px-4 py-3">${(m.currentStock * m.costPerUnit).toLocaleString()}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => startEdit(m)}><Edit className="w-4 h-4" /></Button>
+                      <Button size="sm" variant="outline" onClick={() => restock(m.id, 10)} className="text-xs">+10</Button>
+                      <Button size="sm" variant="ghost" className="text-red-500" onClick={() => setMaterials(prev => prev.filter(x => x.id !== m.id))}><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </Layout>
   );
