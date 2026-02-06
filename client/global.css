@@ -1,0 +1,147 @@
+/** @import must precede all other statements */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /**
+   * Tailwind CSS theme for Dental Laboratory Operating System
+   * Professional medical lab aesthetic with blues, teals, and clean whites
+   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * A different format will require also updating the theme in tailwind.config.ts.
+  */
+  :root {
+    /* Professional DLOS color palette */
+    --background: 0 0% 100%;
+    --foreground: 200 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 200 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 20% 10%;
+
+    /* Primary: Deep professional blue */
+    --primary: 201 96% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Light professional blue */
+    --secondary: 200 100% 97%;
+    --secondary-foreground: 201 96% 32%;
+
+    /* Muted: Soft gray */
+    --muted: 200 20% 93%;
+    --muted-foreground: 200 10% 40%;
+
+    /* Accent: Medical teal */
+    --accent: 174 74% 44%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders and input */
+    --border: 200 20% 88%;
+    --input: 200 20% 96%;
+    --ring: 201 96% 32%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 200 20% 97%;
+    --sidebar-foreground: 200 20% 10%;
+    --sidebar-primary: 201 96% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 174 74% 44%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 200 20% 88%;
+    --sidebar-ring: 201 96% 32%;
+  }
+
+  .dark {
+    --background: 200 20% 8%;
+    --foreground: 0 0% 95%;
+
+    --card: 200 20% 12%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 200 20% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 201 100% 50%;
+    --primary-foreground: 200 20% 8%;
+
+    --secondary: 200 50% 20%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 200 15% 20%;
+    --muted-foreground: 200 10% 60%;
+
+    --accent: 174 74% 54%;
+    --accent-foreground: 200 20% 8%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 200 20% 8%;
+
+    --border: 200 20% 20%;
+    --input: 200 20% 16%;
+    --ring: 201 100% 50%;
+
+    --sidebar-background: 200 20% 10%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 201 100% 50%;
+    --sidebar-primary-foreground: 200 20% 8%;
+    --sidebar-accent: 174 74% 54%;
+    --sidebar-accent-foreground: 200 20% 8%;
+    --sidebar-border: 200 20% 20%;
+    --sidebar-ring: 201 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  :where(p, span, li, h1, h2, h3, h4, h5, h6, a, button, label, td, th) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-bold;
+  }
+
+  h3 {
+    @apply text-lg font-semibold;
+  }
+
+  pre,
+  code {
+    overflow-x: auto;
+    white-space: pre;
+  }
+}
+
+@layer components {
+  .dlos-nav-link {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  }
+
+  .dlos-card {
+    @apply rounded-lg border border-border bg-card p-6 shadow-sm;
+  }
+
+  .dlos-section-title {
+    @apply text-2xl font-bold text-foreground mb-8;
+  }
+}
