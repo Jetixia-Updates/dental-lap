@@ -26,19 +26,19 @@ export default function CasePlanning() {
   const planners = staff.filter(s => s.department === "case-planning").map(s => s.name);
 
   const filtered = cases.filter(c => {
-    const match = `${c.id} ${c.patientName} ${c.doctorName}`.toLowerCase().includes(search.toLowerCase());
+    const match = `${c.id} ${c.patient} ${c.doctor}`.toLowerCase().includes(search.toLowerCase());
     const statusMatch = filterStatus === "all" || 
-      (filterStatus === "pending" && !c.assignedStaff.length) ||
-      (filterStatus === "planning" && c.assignedStaff.length > 0 && c.status !== "completed") ||
+      (filterStatus === "pending" && Object.keys(c.assignedStaff).length === 0) ||
+      (filterStatus === "planning" && Object.keys(c.assignedStaff).length > 0 && c.status !== "completed") ||
       (filterStatus === "planned" && c.status === "completed");
     return match && statusMatch;
   });
 
   const startEdit = (c: typeof cases[0]) => {
     setForm({ 
-      assignedPlanner: c.assignedStaff[0] || "", 
+      assignedPlanner: c.assignedStaff["case-planning"] || "", 
       complexity: "moderate", 
-      notes: c.notes[c.notes.length - 1]?.content || "" 
+      notes: c.notes.length > 0 ? c.notes[c.notes.length - 1].note : "" 
     });
     setEditingId(c.id);
   };
@@ -46,10 +46,10 @@ export default function CasePlanning() {
   const saveEdit = () => {
     if (!editingId) return;
     if (form.assignedPlanner) {
-      assignStaffToCase(editingId, form.assignedPlanner);
+      assignStaffToCase(editingId, "case-planning", form.assignedPlanner);
     }
     if (form.notes) {
-      addCaseNote(editingId, form.notes, form.assignedPlanner || "System");
+      addCaseNote(editingId, "case-planning", form.assignedPlanner || "System", form.notes, "update");
     }
     setEditingId(null);
   };
@@ -70,8 +70,8 @@ export default function CasePlanning() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {[
-          { label: "Pending", value: cases.filter(c => !c.assignedStaff.length).length, color: "text-gray-600" },
-          { label: "In Planning", value: cases.filter(c => c.assignedStaff.length > 0 && c.status !== "completed").length, color: "text-blue-600" },
+          { label: "Pending", value: cases.filter(c => Object.keys(c.assignedStaff).length === 0).length, color: "text-gray-600" },
+          { label: "In Planning", value: cases.filter(c => Object.keys(c.assignedStaff).length > 0 && c.status !== "completed").length, color: "text-blue-600" },
           { label: "Planned", value: cases.filter(c => c.status === "completed").length, color: "text-green-600" },
         ].map(s => (
           <div key={s.label} className="bg-card border rounded-lg p-4">
@@ -103,7 +103,7 @@ export default function CasePlanning() {
           <div key={c.id} className="bg-card border rounded-lg p-5">
             {editingId === c.id ? (
               <div className="space-y-4">
-                <h3 className="font-semibold">{c.id} — {c.patientName}</h3>
+                <h3 className="font-semibold">{c.id} — {c.patient}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label>Assign Planner</Label>
@@ -129,10 +129,10 @@ export default function CasePlanning() {
                     <span className="font-mono font-semibold">{c.id}</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
                   </div>
-                  <p className="text-sm"><strong>{c.patientName}</strong> — {c.doctorName} — {c.caseType}</p>
+                  <p className="text-sm"><strong>{c.patient}</strong> — {c.doctor} — {c.restorationType}</p>
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <User className="w-3 h-3" /> {c.assignedStaff[0] || "Unassigned"}
-                    {c.notes.length > 0 && <span className="ml-2">• {c.notes[c.notes.length - 1].content}</span>}
+                    <User className="w-3 h-3" /> {c.assignedStaff["case-planning"] || "Unassigned"}
+                    {c.notes.length > 0 && <span className="ml-2">• {c.notes[c.notes.length - 1].note}</span>}
                   </p>
                 </div>
                 <div className="flex gap-1 flex-shrink-0">
@@ -155,11 +155,9 @@ export default function CasePlanning() {
     <Layout>
       <DepartmentManagement
         departmentName={t("deptPages.casePlanning.title")}
-        departmentId="case-planning"
-        icon={ClipboardList}
-        description={t("deptPages.casePlanning.subtitle")}
+        departmentIcon={<ClipboardList className="w-8 h-8" />}
         customTabs={[
-          { id: "planning", label: "Case Planning", content: casePlanningTab }
+          { value: "planning", label: "Case Planning", content: casePlanningTab }
         ]}
       />
     </Layout>
