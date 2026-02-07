@@ -2,7 +2,6 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import DepartmentManagement from "@/components/DepartmentManagement";
 import { Button } from "@/components/ui/button";
-import { Cog } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
