@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import AllDepartmentsOverview from "@/components/AllDepartmentsOverview";
+import { useLabContext } from "@/contexts/LabContext";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -57,15 +59,6 @@ export default function Dashboard() {
     { label: t("dashboard.labUtilization"), value: "87%", change: 8, icon: Zap, color: "from-purple-500 to-purple-600" },
     { label: t("dashboard.staffEfficiency"), value: "91%", change: 2, icon: Users, color: "from-pink-500 to-pink-600" },
     { label: t("dashboard.qcPassRate"), value: "97%", change: 1, icon: Target, color: "from-teal-500 to-teal-600" },
-  ];
-
-  const departmentStats = [
-    { name: t("deptNames.receptionIntake"), cases: 15, efficiency: 94, team: 2, path: "/departments/reception" },
-    { name: t("deptNames.cadDesign"), cases: 18, efficiency: 88, team: 3, path: "/departments/cad-design" },
-    { name: t("deptNames.camMilling"), cases: 20, efficiency: 92, team: 2, path: "/departments/cam-production" },
-    { name: t("deptNames.ceramicFinishing"), cases: 10, efficiency: 95, team: 2, path: "/departments/finishing" },
-    { name: t("deptNames.qualityControl"), cases: 6, efficiency: 97, team: 2, path: "/quality-control" },
-    { name: t("deptNames.logisticsDelivery"), cases: 5, efficiency: 90, team: 2, path: "/departments/logistics" },
   ];
 
   const [recentCases, setRecentCases] = useState<RecentCase[]>([
@@ -174,44 +167,9 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Department Performance */}
+        {/* All Departments Overview */}
         <div className="lg:col-span-2">
-          <div className="bg-card border rounded-lg p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h2 className="text-lg font-bold text-foreground">{t("dashboard.departmentPerformance")}</h2>
-              <Link to="/departments" className="text-sm text-primary hover:underline flex items-center gap-1">
-                {t("common.viewAllLink")} <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-            <div className="space-y-4">
-              {departmentStats.map((dept, idx) => (
-                <Link
-                  key={idx}
-                  to={dept.path}
-                  className="block pb-4 border-b border-border last:border-b-0 last:pb-0 hover:bg-secondary/30 -mx-2 px-2 py-2 rounded-md transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="font-medium text-foreground text-sm">{dept.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {dept.cases} {t("common.active")} &bull; {dept.team} {t("common.staff")}
-                      </p>
-                    </div>
-                    <div className="text-right flex items-center gap-3">
-                      <div>
-                        <p className="font-semibold text-primary text-sm">{dept.efficiency}%</p>
-                        <p className="text-xs text-muted-foreground">{t("common.efficiency")}</p>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
-                    </div>
-                  </div>
-                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                    <div className="h-full bg-accent transition-all" style={{ width: `${dept.efficiency}%` }} />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <AllDepartmentsOverview />
         </div>
 
         {/* Alerts & Notifications */}
