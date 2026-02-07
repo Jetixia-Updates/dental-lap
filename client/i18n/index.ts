@@ -12,7 +12,8 @@ i18n
       en: { translation: en },
       ar: { translation: ar },
     },
-    fallbackLng: "en",
+    lng: "ar", // Set Arabic as default language
+    fallbackLng: "ar", // Use Arabic as fallback instead of English
     interpolation: {
       escapeValue: false, // React already escapes
     },

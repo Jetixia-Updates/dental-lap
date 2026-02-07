@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useDirection } from "./hooks/use-direction";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Cases from "./pages/Cases";
@@ -20,33 +21,38 @@ import Inventory from "./pages/departments/Inventory";
 import Financial from "./pages/departments/Financial";
 import ContinuousImprovement from "./pages/departments/ContinuousImprovement";
 
-const App = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/cases" element={<Cases />} />
-      <Route path="/cases/:caseId" element={<CaseDetail />} />
-      <Route path="/departments" element={<Departments />} />
-      <Route path="/quality-control" element={<QualityControl />} />
-      <Route path="/communication" element={<Communication />} />
+const App = () => {
+  // Initialize direction handling for RTL support
+  useDirection();
 
-      {/* Department sub-pages */}
-      <Route path="/departments/reception" element={<Reception />} />
-      <Route path="/departments/case-planning" element={<CasePlanning />} />
-      <Route path="/departments/model-scan" element={<ModelScan />} />
-      <Route path="/departments/cad-design" element={<CADDesign />} />
-      <Route path="/departments/cam-production" element={<CAMProduction />} />
-      <Route path="/departments/finishing" element={<Finishing />} />
-      <Route path="/departments/logistics" element={<Logistics />} />
-      <Route path="/departments/inventory" element={<Inventory />} />
-      <Route path="/departments/financial" element={<Financial />} />
-      <Route path="/departments/continuous-improvement" element={<ContinuousImprovement />} />
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/cases" element={<Cases />} />
+        <Route path="/cases/:caseId" element={<CaseDetail />} />
+        <Route path="/departments" element={<Departments />} />
+        <Route path="/quality-control" element={<QualityControl />} />
+        <Route path="/communication" element={<Communication />} />
 
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  </BrowserRouter>
-);
+        {/* Department sub-pages */}
+        <Route path="/departments/reception" element={<Reception />} />
+        <Route path="/departments/case-planning" element={<CasePlanning />} />
+        <Route path="/departments/model-scan" element={<ModelScan />} />
+        <Route path="/departments/cad-design" element={<CADDesign />} />
+        <Route path="/departments/cam-production" element={<CAMProduction />} />
+        <Route path="/departments/finishing" element={<Finishing />} />
+        <Route path="/departments/logistics" element={<Logistics />} />
+        <Route path="/departments/inventory" element={<Inventory />} />
+        <Route path="/departments/financial" element={<Financial />} />
+        <Route path="/departments/continuous-improvement" element={<ContinuousImprovement />} />
+
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
 export default App;

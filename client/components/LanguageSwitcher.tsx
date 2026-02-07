@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { Languages } from "lucide-react";
-import { useEffect } from "react";
 
 export default function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
@@ -11,13 +10,6 @@ export default function LanguageSwitcher() {
     const newLang = isArabic ? "en" : "ar";
     i18n.changeLanguage(newLang);
   };
-
-  // Update HTML dir and lang attributes when language changes
-  useEffect(() => {
-    const dir = i18n.language === "ar" ? "rtl" : "ltr";
-    document.documentElement.setAttribute("dir", dir);
-    document.documentElement.setAttribute("lang", i18n.language);
-  }, [i18n.language]);
 
   return (
     <button
