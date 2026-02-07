@@ -160,6 +160,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
             <nav className="md:hidden mt-4 pt-4 border-t border-border space-y-1 animate-slideUp">
+              {/* Mobile Language Switcher at the very top */}
+              <div className="pb-2 flex justify-center">
+                <LanguageSwitcher />
+              </div>
               {navItems.map((item) => (
                 <Link
                   key={item.path}

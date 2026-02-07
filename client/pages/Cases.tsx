@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Plus,
   Search,
@@ -174,6 +175,7 @@ const emptyForm: Omit<Case, "id" | "caseId" | "dateCreated"> = {
 
 export default function Cases() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [cases, setCases] = useState<Case[]>(initialCases);
   const [loading, setLoading] = useState(false);
 
@@ -582,51 +584,76 @@ export default function Cases() {
         </Button>
       </div>
 
-      {/* Cases Table */}
+      {/* Cases Table/Cards */}
       <div className="bg-card border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-secondary/50">
-                <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("caseId")}>
-                  <div className="flex items-center gap-1">{t("cases.caseId")} <ArrowUpDown className="w-3 h-3" /></div>
-                </th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("doctor")}>
-                  <div className="flex items-center gap-1">{t("cases.doctor")} <ArrowUpDown className="w-3 h-3" /></div>
-                </th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("cases.patient")}</th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("cases.type")}</th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.status")}</th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.priority")}</th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("dueDate")}>
-                  <div className="flex items-center gap-1">{t("cases.dueDate")} <ArrowUpDown className="w-3 h-3" /></div>
-                </th>
-                <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.actions")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filteredCases.length > 0 ? (
-                filteredCases.map((caseItem) => {
-                  const StatusIcon = statusConfig[caseItem.status].icon;
-                  const statusColor = statusConfig[caseItem.status].color;
-                  const statusLabel = statusConfig[caseItem.status].label;
-                  const priorityColor = priorityConfig[caseItem.priority].color;
-                  const priorityLabel = priorityConfig[caseItem.priority].label;
+        {isMobile ? (
+          /* Mobile Card Layout */
+          <div className="divide-y divide-border">
+            {filteredCases.length > 0 ? (
+              filteredCases.map((caseItem) => {
+                const StatusIcon = statusConfig[caseItem.status].icon;
+                const statusColor = statusConfig[caseItem.status].color;
+                const priorityColor = priorityConfig[caseItem.priority].color;
 
-                  return (
-                    <tr key={caseItem.id} className="hover:bg-secondary/50 transition-colors">
-                      <td className="px-6 py-4">
+                return (
+                  <div key={caseItem.id} className="p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div>
                         <Link
                           to={`/cases/${caseItem.caseId}`}
                           className="font-semibold text-primary hover:underline"
                         >
                           {caseItem.caseId}
                         </Link>
-                      </td>
-                      <td className="px-6 py-4 text-foreground">{caseItem.doctor}</td>
-                      <td className="px-6 py-4 text-foreground">{caseItem.patientName}</td>
-                      <td className="px-6 py-4 text-foreground">{caseItem.caseType}</td>
-                      <td className="px-6 py-4">
+                        <p className="text-sm text-muted-foreground">
+                          {caseItem.doctor}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          to={`/cases/${caseItem.caseId}`}
+                          className="p-2 hover:bg-secondary rounded transition-colors"
+                        >
+                          <Eye className="w-4 h-4 text-muted-foreground" />
+                        </Link>
+                        <button
+                          onClick={() => openEditDialog(caseItem)}
+                          className="p-2 hover:bg-secondary rounded transition-colors"
+                        >
+                          <Edit className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(caseItem.id)}
+                          className="p-2 hover:bg-secondary rounded transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">{t("cases.patient")}: </span>
+                        <span className="text-foreground">{caseItem.patientName}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t("cases.type")}: </span>
+                        <span className="text-foreground">{caseItem.caseType}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t("cases.dueDate")}: </span>
+                        <span className="text-foreground">
+                          {new Date(caseItem.dueDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t("cases.material")}: </span>
+                        <span className="text-foreground">{caseItem.material}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2">
                         <select
                           value={caseItem.status}
                           onChange={(e) => handleStatusChange(caseItem.id, e.target.value as Case["status"])}
@@ -639,52 +666,126 @@ export default function Cases() {
                           <option value="qc">{t("nav.qc")}</option>
                           <option value="delivery">{t("cases.readyForDelivery")}</option>
                         </select>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${priorityColor}`}>
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${priorityColor}`}>
                           {caseItem.priority === "high" ? t("cases.high") : caseItem.priority === "medium" ? t("cases.medium") : t("cases.low")}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 text-foreground">
-                        {new Date(caseItem.dueDate).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="p-6 text-center">
+                <p className="text-muted-foreground">
+                  {t("cases.noCases")}
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Desktop Table Layout */
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-secondary/50">
+                  <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("caseId")}>
+                    <div className="flex items-center gap-1">{t("cases.caseId")} <ArrowUpDown className="w-3 h-3" /></div>
+                  </th>
+                  <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("doctor")}>
+                    <div className="flex items-center gap-1">{t("cases.doctor")} <ArrowUpDown className="w-3 h-3" /></div>
+                  </th>
+                  <th className="text-left px-6 py-4 font-semibold text-foreground">{t("cases.patient")}</th>
+                  <th className="text-left px-6 py-4 font-semibold text-foreground">{t("cases.type")}</th>
+                  <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.status")}</th>
+                  <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.priority")}</th>
+                  <th className="text-left px-6 py-4 font-semibold text-foreground cursor-pointer hover:text-primary" onClick={() => toggleSort("dueDate")}>
+                    <div className="flex items-center gap-1">{t("cases.dueDate")} <ArrowUpDown className="w-3 h-3" /></div>
+                  </th>
+                  <th className="text-left px-6 py-4 font-semibold text-foreground">{t("common.actions")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredCases.length > 0 ? (
+                  filteredCases.map((caseItem) => {
+                    const StatusIcon = statusConfig[caseItem.status].icon;
+                    const statusColor = statusConfig[caseItem.status].color;
+                    const statusLabel = statusConfig[caseItem.status].label;
+                    const priorityColor = priorityConfig[caseItem.priority].color;
+                    const priorityLabel = priorityConfig[caseItem.priority].label;
+
+                    return (
+                      <tr key={caseItem.id} className="hover:bg-secondary/50 transition-colors">
+                        <td className="px-6 py-4">
                           <Link
                             to={`/cases/${caseItem.caseId}`}
-                            className="p-1 hover:bg-secondary rounded transition-colors"
+                            className="font-semibold text-primary hover:underline"
                           >
-                            <Eye className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                            {caseItem.caseId}
                           </Link>
-                          <button
-                            onClick={() => openEditDialog(caseItem)}
-                            className="p-1 hover:bg-secondary rounded transition-colors"
+                        </td>
+                        <td className="px-6 py-4 text-foreground">{caseItem.doctor}</td>
+                        <td className="px-6 py-4 text-foreground">{caseItem.patientName}</td>
+                        <td className="px-6 py-4 text-foreground">{caseItem.caseType}</td>
+                        <td className="px-6 py-4">
+                          <select
+                            value={caseItem.status}
+                            onChange={(e) => handleStatusChange(caseItem.id, e.target.value as Case["status"])}
+                            className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${statusColor}`}
                           >
-                            <Edit className="w-4 h-4 text-muted-foreground hover:text-primary" />
-                          </button>
-                          <button
-                            onClick={() => setShowDeleteConfirm(caseItem.id)}
-                            className="p-1 hover:bg-secondary rounded transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={8} className="px-6 py-8 text-center">
-                    <p className="text-muted-foreground">
-                      {t("cases.noCases")}
-                    </p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                            <option value="intake">{t("cases.intake")}</option>
+                            <option value="planning">{t("cases.planning")}</option>
+                            <option value="design">{t("cases.design")}</option>
+                            <option value="production">{t("cases.production")}</option>
+                            <option value="qc">{t("nav.qc")}</option>
+                            <option value="delivery">{t("cases.readyForDelivery")}</option>
+                          </select>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${priorityColor}`}>
+                            {caseItem.priority === "high" ? t("cases.high") : caseItem.priority === "medium" ? t("cases.medium") : t("cases.low")}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-foreground">
+                          {new Date(caseItem.dueDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              to={`/cases/${caseItem.caseId}`}
+                              className="p-1 hover:bg-secondary rounded transition-colors"
+                            >
+                              <Eye className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                            </Link>
+                            <button
+                              onClick={() => openEditDialog(caseItem)}
+                              className="p-1 hover:bg-secondary rounded transition-colors"
+                            >
+                              <Edit className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                            </button>
+                            <button
+                              onClick={() => setShowDeleteConfirm(caseItem.id)}
+                              className="p-1 hover:bg-secondary rounded transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-8 text-center">
+                      <p className="text-muted-foreground">
+                        {t("cases.noCases")}
+                      </p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
         <div className="px-6 py-3 border-t border-border bg-secondary/30 text-sm text-muted-foreground">
           {t("common.showingOf", { shown: filteredCases.length, total: cases.length })}
         </div>
@@ -694,8 +795,8 @@ export default function Cases() {
       {showCreateDialog && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-lg border border-border shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-xl font-bold text-foreground">{t("cases.createNewCase")}</h2>
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-border">
+              <h2 className="text-lg md:text-xl font-bold text-foreground">{t("cases.createNewCase")}</h2>
               <button
                 onClick={() => setShowCreateDialog(false)}
                 className="p-1 hover:bg-secondary rounded-md transition-colors"
@@ -703,8 +804,8 @@ export default function Cases() {
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
-            <div className="p-6">{renderForm()}</div>
-            <div className="flex gap-3 p-6 border-t border-border justify-end">
+            <div className="p-4 md:p-6">{renderForm()}</div>
+            <div className="flex gap-3 p-4 md:p-6 border-t border-border justify-end">
               <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                 {t("common.cancel")}
               </Button>
@@ -721,8 +822,8 @@ export default function Cases() {
       {showEditDialog && editingCase && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-lg border border-border shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-xl font-bold text-foreground">{t("cases.editCase")} - {editingCase.caseId}</h2>
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-border">
+              <h2 className="text-lg md:text-xl font-bold text-foreground">{t("cases.editCase")} - {editingCase.caseId}</h2>
               <button
                 onClick={() => { setShowEditDialog(false); setEditingCase(null); }}
                 className="p-1 hover:bg-secondary rounded-md transition-colors"
@@ -730,8 +831,8 @@ export default function Cases() {
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
-            <div className="p-6">{renderForm()}</div>
-            <div className="flex gap-3 p-6 border-t border-border justify-end">
+            <div className="p-4 md:p-6">{renderForm()}</div>
+            <div className="flex gap-3 p-4 md:p-6 border-t border-border justify-end">
               <Button variant="outline" onClick={() => { setShowEditDialog(false); setEditingCase(null); }}>
                 {t("common.cancel")}
               </Button>

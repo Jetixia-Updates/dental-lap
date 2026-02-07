@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Send,
   MessageSquare,
@@ -178,6 +179,7 @@ const typeConfig = {
 
 export default function Communication() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
   const [logs, setLogs] = useState<CommunicationLog[]>(initialLogs);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
@@ -316,10 +318,10 @@ export default function Communication() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className={`grid grid-cols-1 ${isMobile ? '' : 'lg:grid-cols-4'} gap-6`}>
         {/* Doctors List */}
-        <div className="lg:col-span-1">
-          <div className="bg-card border rounded-lg p-6">
+        <div className={`${isMobile ? (selectedDoctorData ? 'hidden' : '') : 'lg:col-span-1'}`}>
+          <div className="bg-card border rounded-lg p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-foreground">{t("communication.doctors")}</h2>
               <Button size="sm" variant="outline" onClick={() => setShowAddDoctor(true)}>
@@ -338,7 +340,7 @@ export default function Communication() {
               />
             </div>
 
-            <div className="space-y-2 max-h-[500px] overflow-y-auto">
+            <div className={`space-y-2 ${isMobile ? 'max-h-none' : 'max-h-[500px] overflow-y-auto'}`}>
               {filteredDoctors.map((doc) => {
                 const docUnread = logs.filter((l) => l.doctorId === doc.id && !l.read).length;
                 return (
@@ -377,46 +379,55 @@ export default function Communication() {
         </div>
 
         {/* Main Content Area */}
-        <div className="lg:col-span-3">
+        <div className={`${isMobile ? (selectedDoctorData ? '' : 'hidden') : 'lg:col-span-3'}`}>
+          {isMobile && selectedDoctorData && (
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedDoctor(null)}
+              className="mb-4 w-full sm:w-auto"
+            >
+              ← {t("common.back")}
+            </Button>
+          )}
           {selectedDoctorData ? (
             <div className="space-y-6">
               {/* Doctor Details Card */}
-              <div className="bg-card border rounded-lg p-6">
-                <div className="flex items-start justify-between mb-4">
+              <div className="bg-card border rounded-lg p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                   <div>
                     <h2 className="text-xl font-bold text-foreground">{selectedDoctorData.name}</h2>
                     <p className="text-sm text-muted-foreground">{selectedDoctorData.clinic}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" onClick={() => window.open(`tel:${selectedDoctorData.phone}`)}>
                       <Phone className="w-4 h-4" />
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => window.open(`mailto:${selectedDoctorData.email}`)}>
                       <Mail className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" onClick={() => setShowCompose(true)}>
+                    <Button size="sm" onClick={() => setShowCompose(true)} className="flex-1 sm:flex-none">
                       <Send className="w-4 h-4 mr-2" />
                       {t("communication.newMessage")}
                     </Button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-border">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border text-sm">
                   <div>
                     <p className="text-xs text-muted-foreground">{t("communication.emailLabel")}</p>
-                    <p className="text-sm font-medium text-foreground truncate">{selectedDoctorData.email}</p>
+                    <p className="font-medium text-foreground truncate">{selectedDoctorData.email}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t("communication.phoneLabel")}</p>
-                    <p className="text-sm font-medium text-foreground">{selectedDoctorData.phone}</p>
+                    <p className="font-medium text-foreground">{selectedDoctorData.phone}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t("communication.activeCasesLabel")}</p>
-                    <p className="text-sm font-medium text-primary">{selectedDoctorData.activeCases}</p>
+                    <p className="font-medium text-primary">{selectedDoctorData.activeCases}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{t("communication.messagesLabel")}</p>
-                    <p className="text-sm font-medium text-foreground">{doctorLogs.length}</p>
+                    <p className="font-medium text-foreground">{doctorLogs.length}</p>
                   </div>
                 </div>
               </div>

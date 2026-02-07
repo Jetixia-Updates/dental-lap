@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Search, Check, X, Pencil, RotateCcw, Monitor,
 } from "lucide-react";
@@ -34,6 +35,7 @@ const SOFTWARE = ["exocad", "3Shape", "DentalCAD", "Medit Design"];
 
 export default function CADDesign() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [cases, setCases] = useState<DesignCase[]>(INITIAL);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -85,11 +87,11 @@ export default function CADDesign() {
           <p className="text-muted-foreground mt-1">{t("deptPages.cadDesign.subtitle")}</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           {["queued", "designing", "review", "approved", "revision"].map(s => (
-            <div key={s} className="bg-card border rounded-lg p-4">
-              <p className="text-sm text-muted-foreground capitalize">{s}</p>
-              <p className="text-2xl font-bold">{cases.filter(c => c.status === s).length}</p>
+            <div key={s} className="bg-card border rounded-lg p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-muted-foreground capitalize">{s}</p>
+              <p className="text-xl sm:text-2xl font-bold">{cases.filter(c => c.status === s).length}</p>
             </div>
           ))}
         </div>
@@ -151,17 +153,17 @@ export default function CADDesign() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-semibold">{c.id}</span>
+                      <span className="font-mono font-semibold text-sm">{c.id}</span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
                       {c.revisionCount > 0 && <span className="text-xs bg-red-50 text-red-600 px-2 py-0.5 rounded">Rev #{c.revisionCount}</span>}
                     </div>
                     <p className="text-sm"><strong>{c.patient}</strong> — {c.restorationType} ({c.toothNumbers}) — {c.material}</p>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <span><Pencil className="w-3 h-3 inline mr-1" />{c.designer || "Unassigned"}</span>
-                      {c.software && <span>{c.software}</span>}
+                      {c.software && <span className="hidden sm:inline">{c.software}</span>}
                     </div>
                     {c.status !== "queued" && (
                       <div className="flex items-center gap-2 mt-1">
@@ -175,15 +177,17 @@ export default function CADDesign() {
                       </div>
                     )}
                   </div>
-                  <div className="flex gap-1 flex-shrink-0">
+                  <div className="flex gap-1 flex-shrink-0 self-start sm:self-center">
                     <Button size="sm" variant="outline" onClick={() => startEdit(c)}><Pencil className="w-4 h-4" /></Button>
                     {c.status === "review" && (
                       <>
-                        <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => approve(c.id)}><Check className="w-4 h-4 mr-1" /> Approve</Button>
-                        <Button size="sm" variant="outline" className="text-red-600" onClick={() => revision(c.id)}><RotateCcw className="w-4 h-4 mr-1" /> Revise</Button>
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700 hidden sm:inline-flex" onClick={() => approve(c.id)}><Check className="w-4 h-4 mr-1" /> Approve</Button>
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700 sm:hidden" onClick={() => approve(c.id)}><Check className="w-4 h-4" /></Button>
+                        <Button size="sm" variant="outline" className="text-red-600 hidden sm:inline-flex" onClick={() => revision(c.id)}><RotateCcw className="w-4 h-4 mr-1" /> Revise</Button>
+                        <Button size="sm" variant="outline" className="text-red-600 sm:hidden" onClick={() => revision(c.id)}><RotateCcw className="w-4 h-4" /></Button>
                       </>
                     )}
-                    {c.status === "revision" && <Button size="sm" onClick={() => restart(c.id)}>Resume Design</Button>}
+                    {c.status === "revision" && <Button size="sm" onClick={() => restart(c.id)} className="text-xs">Resume</Button>}
                   </div>
                 </div>
               )}

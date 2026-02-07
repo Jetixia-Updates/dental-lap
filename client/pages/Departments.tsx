@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   ClipboardList,
   FileText,
@@ -68,6 +69,7 @@ const getStatusDot = (status: string) => {
 
 export default function Departments() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const departmentsData: Department[] = [
     {
@@ -345,16 +347,16 @@ export default function Departments() {
       </div>
 
       {/* Department Grid + Detail Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={`grid grid-cols-1 ${isMobile ? '' : 'lg:grid-cols-3'} gap-6 mb-8`}>
+        <div className={`${isMobile ? (selectedDept ? 'hidden' : 'col-span-1') : 'lg:col-span-2'}`}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredDepartments.map((dept) => {
               const IconComponent = dept.icon;
               const isSelected = selectedDept === dept.id;
               return (
                 <div
                   key={dept.id}
-                  className={`bg-card border rounded-lg p-5 cursor-pointer transition-all duration-200 ${
+                  className={`bg-card border rounded-lg p-4 sm:p-5 cursor-pointer transition-all duration-200 ${
                     isSelected
                       ? "ring-2 ring-primary border-primary shadow-lg"
                       : "hover:shadow-md hover:-translate-y-0.5"
@@ -427,9 +429,18 @@ export default function Departments() {
         </div>
 
         {/* Department Detail Panel */}
-        <div className="lg:col-span-1">
+        <div className={`${isMobile ? (selectedDept ? 'col-span-1' : 'hidden') : 'lg:col-span-1'}`}>
+          {isMobile && selectedDepartment && (
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedDept(null)}
+              className="mb-4 w-full"
+            >
+              ← {t("common.back")}
+            </Button>
+          )}
           {selectedDepartment ? (
-            <div className="bg-card border rounded-lg p-6 sticky top-20">
+            <div className="bg-card border rounded-lg p-4 sm:p-6 sticky top-20">
               <div className="flex items-center gap-3 mb-6">
                 <div
                   className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${selectedDepartment.color}`}
@@ -538,14 +549,16 @@ export default function Departments() {
               </div>
             </div>
           ) : (
-            <div className="bg-card border rounded-lg h-64 flex items-center justify-center sticky top-20">
-              <div className="text-center">
-                <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground text-sm">
-                  {t("departments.selectDept")}
-                </p>
+            !isMobile && (
+              <div className="bg-card border rounded-lg h-64 flex items-center justify-center sticky top-20">
+                <div className="text-center">
+                  <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground text-sm">
+                    {t("departments.selectDept")}
+                  </p>
+                </div>
               </div>
-            </div>
+            )
           )}
         </div>
       </div>

@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Plus, Search, Trash2, Edit, Check, X, AlertCircle,
 } from "lucide-react";
@@ -39,6 +40,7 @@ const INITIAL_CASES: IntakeCase[] = [
 
 export default function Reception() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const [cases, setCases] = useState<IntakeCase[]>(INITIAL_CASES);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -179,39 +181,103 @@ export default function Reception() {
         )}
 
         {/* Table */}
-        <div className="bg-card border rounded-lg overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                {["Case ID", "Doctor", "Patient", "Teeth", "Type", "Shade", "Material", "Priority", "Status", "Actions"].map(h => (
-                  <th key={h} className="text-left px-4 py-3 font-medium text-muted-foreground">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
+        <div className="bg-card border rounded-lg overflow-hidden">
+          {isMobile ? (
+            /* Mobile Card Layout */
+            <div className="divide-y divide-border">
               {filtered.length === 0 ? (
-                <tr><td colSpan={10} className="text-center py-8 text-muted-foreground">No cases found</td></tr>
+                <div className="text-center py-8 text-muted-foreground">No cases found</div>
               ) : filtered.map(c => (
-                <tr key={c.id} className="border-t hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 font-mono font-semibold">{c.id}</td>
-                  <td className="px-4 py-3">{c.doctor}</td>
-                  <td className="px-4 py-3">{c.patient}</td>
-                  <td className="px-4 py-3">{c.toothNumbers}</td>
-                  <td className="px-4 py-3">{c.restorationType}</td>
-                  <td className="px-4 py-3">{c.shade || <span className="flex items-center gap-1 text-red-500"><AlertCircle className="w-3 h-3" /> Missing</span>}</td>
-                  <td className="px-4 py-3">{c.material}</td>
-                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor[c.priority]}`}>{c.priority}</span></td>
-                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span></td>
-                  <td className="px-4 py-3">
+                <div key={c.id} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="font-mono font-semibold text-sm">{c.id}</span>
+                      <div className="flex gap-2 mt-1">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor[c.priority]}`}>{c.priority}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span>
+                      </div>
+                    </div>
                     <div className="flex gap-1">
                       <Button size="sm" variant="ghost" onClick={() => startEdit(c)}><Edit className="w-4 h-4" /></Button>
                       <Button size="sm" variant="ghost" className="text-red-500" onClick={() => setCases(prev => prev.filter(x => x.id !== c.id))}><Trash2 className="w-4 h-4" /></Button>
                     </div>
-                  </td>
-                </tr>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Doctor:</span>
+                      <div className="font-medium">{c.doctor}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Patient:</span>
+                      <div className="font-medium">{c.patient}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Teeth:</span>
+                      <div className="font-medium">{c.toothNumbers}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Type:</span>
+                      <div className="font-medium">{c.restorationType}</div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Shade:</span>
+                      <div className="font-medium">
+                        {c.shade || <span className="flex items-center gap-1 text-red-500"><AlertCircle className="w-3 h-3" /> Missing</span>}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Material:</span>
+                      <div className="font-medium">{c.material}</div>
+                    </div>
+                  </div>
+
+                  {c.specialInstructions && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Notes:</span>
+                      <div className="font-medium">{c.specialInstructions}</div>
+                    </div>
+                  )}
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          ) : (
+            /* Desktop Table Layout */
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    {["Case ID", "Doctor", "Patient", "Teeth", "Type", "Shade", "Material", "Priority", "Status", "Actions"].map(h => (
+                      <th key={h} className="text-left px-4 py-3 font-medium text-muted-foreground">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr><td colSpan={10} className="text-center py-8 text-muted-foreground">No cases found</td></tr>
+                  ) : filtered.map(c => (
+                    <tr key={c.id} className="border-t hover:bg-muted/30 transition-colors">
+                      <td className="px-4 py-3 font-mono font-semibold">{c.id}</td>
+                      <td className="px-4 py-3">{c.doctor}</td>
+                      <td className="px-4 py-3">{c.patient}</td>
+                      <td className="px-4 py-3">{c.toothNumbers}</td>
+                      <td className="px-4 py-3">{c.restorationType}</td>
+                      <td className="px-4 py-3">{c.shade || <span className="flex items-center gap-1 text-red-500"><AlertCircle className="w-3 h-3" /> Missing</span>}</td>
+                      <td className="px-4 py-3">{c.material}</td>
+                      <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${priorityColor[c.priority]}`}>{c.priority}</span></td>
+                      <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[c.status]}`}>{c.status}</span></td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="ghost" onClick={() => startEdit(c)}><Edit className="w-4 h-4" /></Button>
+                          <Button size="sm" variant="ghost" className="text-red-500" onClick={() => setCases(prev => prev.filter(x => x.id !== c.id))}><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </Layout>

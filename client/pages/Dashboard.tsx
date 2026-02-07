@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   TrendingUp,
   TrendingDown,
@@ -47,6 +48,7 @@ interface Alert {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const kpis: KPI[] = [
     { label: t("dashboard.totalCasesMonth"), value: "156", change: 12, icon: BarChart3, color: "from-blue-500 to-blue-600" },
@@ -124,19 +126,19 @@ export default function Dashboard() {
   return (
     <Layout>
       {/* Page Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">{t("dashboard.title")}</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{t("dashboard.title")}</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             {t("dashboard.subtitle")}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate("/cases")}>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => navigate("/cases")} className="w-full sm:w-auto">
             <Eye className="w-4 h-4 mr-2" />
             {t("dashboard.viewAllCases")}
           </Button>
-          <Button onClick={() => setShowReport(true)}>
+          <Button onClick={() => setShowReport(true)} className="w-full sm:w-auto">
             <BarChart3 className="w-4 h-4 mr-2" />
             {t("dashboard.dailyReport")}
           </Button>
@@ -144,28 +146,28 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {kpis.map((kpi, idx) => {
           const IconComponent = kpi.icon;
           const isPositive = kpi.change >= 0;
 
           return (
-            <div key={idx} className="bg-card border rounded-lg p-5 hover:shadow-md transition-shadow cursor-default">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-lg bg-gradient-to-br ${kpi.color}`}>
-                  <IconComponent className="w-5 h-5 text-white" />
+            <div key={idx} className="bg-card border rounded-lg p-4 sm:p-5 hover:shadow-md transition-shadow cursor-default">
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className={`p-2 sm:p-3 rounded-lg bg-gradient-to-br ${kpi.color}`}>
+                  <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div
-                  className={`flex items-center gap-1 text-sm font-semibold ${
+                  className={`flex items-center gap-1 text-xs sm:text-sm font-semibold ${
                     isPositive ? "text-green-600" : "text-red-600"
                   }`}
                 >
-                  {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                  {isPositive ? <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" /> : <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4" />}
                   {Math.abs(kpi.change)}%
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-1">{kpi.label}</p>
-              <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground mb-1">{kpi.label}</p>
+              <p className="text-xl sm:text-2xl font-bold text-foreground">{kpi.value}</p>
             </div>
           );
         })}
@@ -174,8 +176,8 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Department Performance */}
         <div className="lg:col-span-2">
-          <div className="bg-card border rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-card border rounded-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h2 className="text-lg font-bold text-foreground">{t("dashboard.departmentPerformance")}</h2>
               <Link to="/departments" className="text-sm text-primary hover:underline flex items-center gap-1">
                 {t("common.viewAllLink")} <ArrowRight className="w-3 h-3" />
@@ -200,7 +202,7 @@ export default function Dashboard() {
                         <p className="font-semibold text-primary text-sm">{dept.efficiency}%</p>
                         <p className="text-xs text-muted-foreground">{t("common.efficiency")}</p>
                       </div>
-                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                      <ArrowRight className="w-4 h-4 text-muted-foreground hidden sm:block" />
                     </div>
                   </div>
                   <div className="h-2 bg-secondary rounded-full overflow-hidden">
@@ -213,8 +215,8 @@ export default function Dashboard() {
         </div>
 
         {/* Alerts & Notifications */}
-        <div className="bg-card border rounded-lg p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-card border rounded-lg p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h2 className="text-lg font-bold text-foreground">
               {t("dashboard.alerts")}
               {activeAlerts.length > 0 && (
@@ -228,6 +230,7 @@ export default function Dashboard() {
                 size="sm"
                 variant="outline"
                 onClick={() => setAlerts(alerts.map((a) => ({ ...a, dismissed: true })))}
+                className="w-full sm:w-auto"
               >
                 {t("common.clearAll")}
               </Button>
