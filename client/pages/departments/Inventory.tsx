@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
+import DepartmentManagement from "@/components/DepartmentManagement";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -82,111 +83,122 @@ export default function Inventory() {
 
   const totalValue = useMemo(() => materials.reduce((sum, m) => sum + m.currentStock * m.costPerUnit, 0), [materials]);
 
-  return (
-    <Layout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2"><Package className="w-8 h-8" /> {t("deptPages.inventory.title")}</h1>
-            <p className="text-muted-foreground mt-1">{t("deptPages.inventory.subtitle")}</p>
-          </div>
-          <Button onClick={() => { resetForm(); setShowForm(true); }}><Plus className="w-4 h-4 mr-2" /> Add Material</Button>
+  const inventoryTab = (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">إدارة المخزون والمواد</h2>
+        <Button onClick={() => { resetForm(); setShowForm(true); }}><Plus className="w-4 h-4 mr-2" /> {t("deptPages.inventory.addMaterial")}</Button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-card border rounded-lg p-4">
+          <p className="text-sm text-muted-foreground">{t("deptPages.inventory.totalItems")}</p>
+          <p className="text-2xl font-bold">{materials.length}</p>
         </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card border rounded-lg p-4">
-            <p className="text-sm text-muted-foreground">Total Items</p>
-            <p className="text-2xl font-bold">{materials.length}</p>
-          </div>
-          <div className="bg-card border rounded-lg p-4">
-            <p className="text-sm text-muted-foreground">Low Stock</p>
-            <p className="text-2xl font-bold text-red-600">{lowStockCount}</p>
-          </div>
-          <div className="bg-card border rounded-lg p-4">
-            <p className="text-sm text-muted-foreground">Total Value</p>
-            <p className="text-2xl font-bold text-green-600">${totalValue.toLocaleString()}</p>
-          </div>
-          <div className="bg-card border rounded-lg p-4">
-            <p className="text-sm text-muted-foreground">Categories</p>
-            <p className="text-2xl font-bold">{new Set(materials.map(m => m.category)).size}</p>
-          </div>
+        <div className="bg-card border rounded-lg p-4">
+          <p className="text-sm text-muted-foreground">{t("deptPages.inventory.lowStock")}</p>
+          <p className="text-2xl font-bold text-red-600">{lowStockCount}</p>
         </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Search materials..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
-          </div>
-          <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
-            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-          </select>
-          <Button variant={showLowOnly ? "default" : "outline"} size="sm" onClick={() => setShowLowOnly(!showLowOnly)} className="flex items-center gap-1">
-            <AlertTriangle className="w-4 h-4" /> Low Stock ({lowStockCount})
-          </Button>
+        <div className="bg-card border rounded-lg p-4">
+          <p className="text-sm text-muted-foreground">{t("deptPages.inventory.totalValue")}</p>
+          <p className="text-2xl font-bold text-green-600">${totalValue.toLocaleString()}</p>
         </div>
-
-        {showForm && (
-          <div className="bg-card border rounded-lg p-6 space-y-4">
-            <h2 className="text-lg font-semibold">{editingId ? "Edit Material" : "Add New Material"}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div><Label>Name *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Material name" /></div>
-              <div>
-                <Label>Category</Label>
-                <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm">
-                  {CATEGORIES.filter(c => c !== "All").map(c => <option key={c}>{c}</option>)}
-                </select>
-              </div>
-              <div><Label>Supplier *</Label><Input value={form.supplier} onChange={e => setForm({ ...form, supplier: e.target.value })} placeholder="Supplier name" /></div>
-              <div><Label>Current Stock</Label><Input type="number" value={form.currentStock} onChange={e => setForm({ ...form, currentStock: +e.target.value })} /></div>
-              <div><Label>Min Stock Level</Label><Input type="number" value={form.minStock} onChange={e => setForm({ ...form, minStock: +e.target.value })} /></div>
-              <div><Label>Unit</Label><Input value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })} placeholder="disc, kg, box..." /></div>
-              <div><Label>Cost Per Unit ($)</Label><Input type="number" value={form.costPerUnit} onChange={e => setForm({ ...form, costPerUnit: +e.target.value })} /></div>
-            </div>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={resetForm}><X className="w-4 h-4 mr-1" /> Cancel</Button>
-              <Button onClick={handleSubmit} disabled={!form.name || !form.supplier}><Check className="w-4 h-4 mr-1" /> {editingId ? "Update" : "Add"}</Button>
-            </div>
-          </div>
-        )}
-
-        <div className="bg-card border rounded-lg overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                {["ID", "Name", "Category", "Supplier", "Stock", "Min", "Unit Cost", "Value", "Actions"].map(h => (
-                  <th key={h} className="text-left px-4 py-3 font-medium text-muted-foreground">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">No materials found</td></tr>
-              ) : filtered.map(m => (
-                <tr key={m.id} className={`border-t hover:bg-muted/30 ${m.currentStock <= m.minStock ? "bg-red-50" : ""}`}>
-                  <td className="px-4 py-3 font-mono text-xs">{m.id}</td>
-                  <td className="px-4 py-3 font-medium">
-                    {m.name}
-                    {m.currentStock <= m.minStock && <AlertTriangle className="w-3 h-3 text-red-500 inline ml-1" />}
-                  </td>
-                  <td className="px-4 py-3"><span className="px-2 py-0.5 rounded bg-muted text-xs">{m.category}</span></td>
-                  <td className="px-4 py-3">{m.supplier}</td>
-                  <td className="px-4 py-3 font-semibold">{m.currentStock} {m.unit}</td>
-                  <td className="px-4 py-3">{m.minStock}</td>
-                  <td className="px-4 py-3">${m.costPerUnit}</td>
-                  <td className="px-4 py-3">${(m.currentStock * m.costPerUnit).toLocaleString()}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => startEdit(m)}><Edit className="w-4 h-4" /></Button>
-                      <Button size="sm" variant="outline" onClick={() => restock(m.id, 10)} className="text-xs">+10</Button>
-                      <Button size="sm" variant="ghost" className="text-red-500" onClick={() => setMaterials(prev => prev.filter(x => x.id !== m.id))}><Trash2 className="w-4 h-4" /></Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="bg-card border rounded-lg p-4">
+          <p className="text-sm text-muted-foreground">{t("deptPages.inventory.categories")}</p>
+          <p className="text-2xl font-bold">{new Set(materials.map(m => m.category)).size}</p>
         </div>
       </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+          <Input placeholder={t("deptPages.inventory.searchPlaceholder")} value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+        </div>
+        <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="border rounded-md px-3 py-2 text-sm">
+          {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+        </select>
+        <Button variant={showLowOnly ? "default" : "outline"} size="sm" onClick={() => setShowLowOnly(!showLowOnly)} className="flex items-center gap-1">
+          <AlertTriangle className="w-4 h-4" /> {t("deptPages.inventory.lowStockBtn")} ({lowStockCount})
+        </Button>
+      </div>
+
+      {showForm && (
+        <div className="bg-card border rounded-lg p-6 space-y-4">
+          <h2 className="text-lg font-semibold">{editingId ? t("deptPages.inventory.editMaterial") : t("deptPages.inventory.addNewMaterial")}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div><Label>{t("deptPages.inventory.name")} *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="اسم المادة" /></div>
+            <div>
+              <Label>{t("deptPages.inventory.category")}</Label>
+              <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm">
+                {CATEGORIES.filter(c => c !== "All").map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+            <div><Label>{t("deptPages.inventory.supplier")} *</Label><Input value={form.supplier} onChange={e => setForm({ ...form, supplier: e.target.value })} placeholder="اسم المورد" /></div>
+            <div><Label>{t("deptPages.inventory.currentStock")}</Label><Input type="number" value={form.currentStock} onChange={e => setForm({ ...form, currentStock: +e.target.value })} /></div>
+            <div><Label>{t("deptPages.inventory.minStock")}</Label><Input type="number" value={form.minStock} onChange={e => setForm({ ...form, minStock: +e.target.value })} /></div>
+            <div><Label>{t("deptPages.inventory.unit")}</Label><Input value={form.unit} onChange={e => setForm({ ...form, unit: e.target.value })} placeholder="قرص، كيلو، صندوق..." /></div>
+            <div><Label>{t("deptPages.inventory.costPerUnit")} ($)</Label><Input type="number" value={form.costPerUnit} onChange={e => setForm({ ...form, costPerUnit: +e.target.value })} /></div>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={resetForm}><X className="w-4 h-4 mr-1" /> {t("deptPages.inventory.cancel")}</Button>
+            <Button onClick={handleSubmit} disabled={!form.name || !form.supplier}><Check className="w-4 h-4 mr-1" /> {editingId ? t("deptPages.inventory.update") : t("deptPages.inventory.add")}</Button>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-card border rounded-lg overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50">
+            <tr>
+              {["ID", t("deptPages.inventory.name"), t("deptPages.inventory.category"), t("deptPages.inventory.supplier"), "المخزون", "الحد الأدنى", t("deptPages.inventory.unitCost"), t("deptPages.inventory.value"), t("deptPages.inventory.actions")].map(h => (
+                <th key={h} className="text-right px-4 py-3 font-medium text-muted-foreground">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">{t("deptPages.inventory.noMaterials")}</td></tr>
+            ) : filtered.map(m => (
+              <tr key={m.id} className={`border-t hover:bg-muted/30 ${m.currentStock <= m.minStock ? "bg-red-50" : ""}`}>
+                <td className="px-4 py-3 font-mono text-xs">{m.id}</td>
+                <td className="px-4 py-3 font-medium">
+                  {m.name}
+                  {m.currentStock <= m.minStock && <AlertTriangle className="w-3 h-3 text-red-500 inline mr-1" />}
+                </td>
+                <td className="px-4 py-3"><span className="px-2 py-0.5 rounded bg-muted text-xs">{m.category}</span></td>
+                <td className="px-4 py-3">{m.supplier}</td>
+                <td className="px-4 py-3 font-semibold">{m.currentStock} {m.unit}</td>
+                <td className="px-4 py-3">{m.minStock}</td>
+                <td className="px-4 py-3">${m.costPerUnit}</td>
+                <td className="px-4 py-3">${(m.currentStock * m.costPerUnit).toLocaleString()}</td>
+                <td className="px-4 py-3">
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="ghost" onClick={() => startEdit(m)}><Edit className="w-4 h-4" /></Button>
+                    <Button size="sm" variant="outline" onClick={() => restock(m.id, 10)} className="text-xs">+10</Button>
+                    <Button size="sm" variant="ghost" className="text-red-500" onClick={() => setMaterials(prev => prev.filter(x => x.id !== m.id))}><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  return (
+    <Layout>
+      <DepartmentManagement
+        departmentName={t("deptPages.inventory.title")}
+        departmentIcon={<Package className="w-10 h-10 text-primary" />}
+        customTabs={[
+          {
+            value: "inventory",
+            label: "إدارة المخزون",
+            content: inventoryTab
+          }
+        ]}
+      />
     </Layout>
   );
 }

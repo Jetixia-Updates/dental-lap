@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
+import DepartmentManagement from "@/components/DepartmentManagement";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,13 +80,8 @@ export default function CADDesign() {
     margins: "Margin Fit", contacts: "Proximal Contacts", occlusion: "Occlusion", anatomy: "Anatomy", thickness: "Min. Thickness",
   };
 
-  return (
-    <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2"><Monitor className="w-8 h-8" /> {t("deptPages.cadDesign.title")}</h1>
-          <p className="text-muted-foreground mt-1">{t("deptPages.cadDesign.subtitle")}</p>
-        </div>
+  const casesTab = (
+    <div className="space-y-6">
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           {["queued", "designing", "review", "approved", "revision"].map(s => (
@@ -194,7 +190,22 @@ export default function CADDesign() {
             </div>
           ))}
         </div>
-      </div>
+    </div>
+  );
+
+  return (
+    <Layout>
+      <DepartmentManagement
+        departmentName={t("deptPages.cadDesign.title")}
+        departmentIcon={<Monitor className="w-10 h-10 text-primary" />}
+        customTabs={[
+          {
+            value: "design-cases",
+            label: "حالات التصميم",
+            content: casesTab
+          }
+        ]}
+      />
     </Layout>
   );
 }
