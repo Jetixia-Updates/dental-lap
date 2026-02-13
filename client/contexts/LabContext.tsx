@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
 import {
   DentalCase,
   Staff,
@@ -26,21 +26,22 @@ interface LabContextType {
   cases: DentalCase[];
   staff: Staff[];
   currentUserRole: UserRole;
+  isLoading: boolean;
 
   // Case CRUD
-  addCase: (caseData: Partial<DentalCase>) => DentalCase;
-  updateCase: (id: string, updates: Partial<DentalCase>) => void;
-  deleteCase: (id: string) => void;
+  addCase: (caseData: Partial<DentalCase>) => Promise<DentalCase>;
+  updateCase: (id: string, updates: Partial<DentalCase>) => Promise<void>;
+  deleteCase: (id: string) => Promise<void>;
   getCase: (id: string) => DentalCase | undefined;
 
   // Workflow actions
-  advanceStage: (caseId: string) => void;
-  completeCurrentStage: (caseId: string) => void;
-  skipStage: (caseId: string, stageIndex: number) => void;
+  advanceStage: (caseId: string) => Promise<void>;
+  completeCurrentStage: (caseId: string) => Promise<void>;
+  skipStage: (caseId: string, stageIndex: number) => Promise<void>;
 
   // Pause/Resume
-  pauseCase: (caseId: string, reason: PauseReason) => void;
-  resumeCase: (caseId: string, returnNotes?: string) => void;
+  pauseCase: (caseId: string, reason: PauseReason) => Promise<void>;
+  resumeCase: (caseId: string, returnNotes?: string) => Promise<void>;
 
   // Final status
   setFinalStatus: (caseId: string, status: FinalStatus) => void;
@@ -229,17 +230,37 @@ const sampleStaff: Staff[] = [
 // ==================== PROVIDER ====================
 
 export function LabProvider({ children }: { children: ReactNode }) {
-  const [cases, setCases] = useState<DentalCase[]>(sampleCases);
+  const [cases, setCases] = useState<DentalCase[]>([]);
   const [staff, setStaff] = useState<Staff[]>(sampleStaff);
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>("admin");
-  const [caseCounter, setCaseCounter] = useState(6);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // ---- Fetch Data ----
+  useEffect(() => {
+    const fetchCases = async () => {
+      try {
+        const response = await fetch("/api/cases");
+        if (response.ok) {
+          const data = await response.json();
+          // Map DB fields to what frontend expects
+          const mapped = data.map((c: any) => ({
+            ...c,
+            id: c.caseId, // Use case_id as the primary id for frontend
+          }));
+          setCases(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to fetch cases:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCases();
+  }, []);
 
   // ---- Case CRUD ----
 
-  const addCase = useCallback((caseData: Partial<DentalCase>): DentalCase => {
-    const newId = `CASE-${String(caseCounter).padStart(3, "0")}`;
-    setCaseCounter((prev) => prev + 1);
-
+  const addCase = useCallback(async (caseData: Partial<DentalCase>): Promise<DentalCase> => {
     // Generate workflow based on category and material
     let workflow: WorkflowStep[] = [];
     if (caseData.category === "fixed" && caseData.fixedMaterial) {
@@ -295,50 +316,50 @@ export function LabProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const newCase: DentalCase = {
-      id: newId,
-      doctorName: caseData.doctorName || "",
-      patientName: caseData.patientName || "",
-      toothNumbers: caseData.toothNumbers || "",
-      shade: caseData.shade || "",
-      priority: caseData.priority || "normal",
-      dateReceived: caseData.dateReceived || new Date().toISOString().split("T")[0],
-      dueDate: caseData.dueDate || "",
-      specialInstructions: caseData.specialInstructions || "",
-      category: caseData.category || "fixed",
-      impressionType: caseData.impressionType,
-      classification: caseData.classification,
-      implantType: caseData.implantType,
-      fixedMaterial: caseData.fixedMaterial,
-      technicalReviewResult: caseData.technicalReviewResult,
-      removableSubType: caseData.removableSubType,
-      nightGuardType: caseData.nightGuardType,
-      nightGuardSize: caseData.nightGuardSize,
-      addToothCount: caseData.addToothCount,
-      orthodonticsType: caseData.orthodonticsType,
+    const payload = {
+      ...caseData,
       workflow,
       currentStageIndex: caseData.impressionType === "intraoral_scan"
         ? workflow.findIndex((s) => s.status === "in_progress")
         : 0,
       isPaused: false,
       pauseHistory: [],
-      finalStatus: undefined,
-      attachments: caseData.attachments || [],
-      notes: [],
-      isCustomProduct: caseData.isCustomProduct,
-      customProductName: caseData.customProductName,
-      customProductSteps: caseData.customProductSteps,
     };
 
-    setCases((prev) => [...prev, newCase]);
-    return newCase;
-  }, [caseCounter]);
+    const response = await fetch("/api/cases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  const updateCase = useCallback((id: string, updates: Partial<DentalCase>) => {
-    setCases((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+    if (!response.ok) throw new Error("Failed to create case");
+    const newCaseData = await response.json();
+    const newCase = { ...newCaseData, id: newCaseData.caseId };
+    
+    setCases((prev) => [newCase, ...prev]);
+    return newCase;
   }, []);
 
-  const deleteCase = useCallback((id: string) => {
+  const updateCase = useCallback(async (id: string, updates: Partial<DentalCase>) => {
+    const response = await fetch(`/api/cases/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) throw new Error("Failed to update case");
+    const updatedData = await response.json();
+    const updated = { ...updatedData, id: updatedData.caseId };
+    
+    setCases((prev) => prev.map((c) => (c.id === id ? updated : c)));
+  }, []);
+
+  const deleteCase = useCallback(async (id: string) => {
+    const response = await fetch(`/api/cases/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) throw new Error("Failed to delete case");
     setCases((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
@@ -349,151 +370,125 @@ export function LabProvider({ children }: { children: ReactNode }) {
 
   // ---- Workflow actions ----
 
-  const advanceStage = useCallback((caseId: string) => {
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId || c.isPaused) return c;
+  const advanceStage = useCallback(async (caseId: string) => {
+    const c = cases.find(x => x.id === caseId);
+    if (!c || c.isPaused) return;
 
-        const now = new Date().toISOString();
-        const currentIdx = c.currentStageIndex;
-        const workflow = [...c.workflow];
+    const now = new Date().toISOString();
+    const currentIdx = c.currentStageIndex;
+    const workflow = [...c.workflow];
 
-        // Complete current stage
-        if (currentIdx >= 0 && currentIdx < workflow.length) {
-          workflow[currentIdx] = {
-            ...workflow[currentIdx],
-            status: "completed",
-            completedAt: now,
-          };
-        }
+    // Complete current stage
+    if (currentIdx >= 0 && currentIdx < workflow.length) {
+      workflow[currentIdx] = {
+        ...workflow[currentIdx],
+        status: "completed",
+        completedAt: now,
+      };
+    }
 
-        // Find next non-skipped stage
-        let nextIdx = currentIdx + 1;
-        while (nextIdx < workflow.length && workflow[nextIdx].status === "skipped") {
-          nextIdx++;
-        }
+    // Find next non-skipped stage
+    let nextIdx = currentIdx + 1;
+    while (nextIdx < workflow.length && workflow[nextIdx].status === "skipped") {
+      nextIdx++;
+    }
 
-        if (nextIdx < workflow.length) {
-          workflow[nextIdx] = {
-            ...workflow[nextIdx],
-            status: "in_progress",
-            startedAt: now,
-          };
+    if (nextIdx < workflow.length) {
+      workflow[nextIdx] = {
+        ...workflow[nextIdx],
+        status: "in_progress",
+        startedAt: now,
+      };
 
-          // Check if this stage triggers auto-pause
-          const pauseReason = shouldAutoPause(workflow[nextIdx].stageKey);
-          if (pauseReason && workflow[nextIdx].stageKey === "ready") {
-            // Only auto-pause at ready for try-in
-            return {
-              ...c,
-              workflow,
-              currentStageIndex: nextIdx,
-            };
-          }
+      // Check if this stage triggers auto-pause
+      const pauseReason = shouldAutoPause(workflow[nextIdx].stageKey);
+      if (pauseReason && workflow[nextIdx].stageKey === "ready") {
+        await updateCase(caseId, { workflow, currentStageIndex: nextIdx });
+      } else {
+        await updateCase(caseId, { workflow, currentStageIndex: nextIdx });
+      }
+    }
+  }, [cases, updateCase]);
 
-          return {
-            ...c,
-            workflow,
-            currentStageIndex: nextIdx,
-          };
-        }
-
-        return { ...c, workflow, currentStageIndex: currentIdx };
-      })
-    );
-  }, []);
-
-  const completeCurrentStage = useCallback((caseId: string) => {
-    advanceStage(caseId);
+  const completeCurrentStage = useCallback(async (caseId: string) => {
+    await advanceStage(caseId);
   }, [advanceStage]);
 
-  const skipStage = useCallback((caseId: string, stageIndex: number) => {
+  const skipStage = useCallback(async (caseId: string, stageIndex: number) => {
     if (currentUserRole !== "admin") return; // Only admin can skip
 
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
-        const workflow = [...c.workflow];
-        if (stageIndex >= 0 && stageIndex < workflow.length) {
-          workflow[stageIndex] = { ...workflow[stageIndex], status: "skipped" };
-        }
-        return { ...c, workflow };
-      })
-    );
-  }, [currentUserRole]);
+    const c = cases.find(x => x.id === caseId);
+    if (!c) return;
+
+    const workflow = [...c.workflow];
+    if (stageIndex >= 0 && stageIndex < workflow.length) {
+      workflow[stageIndex] = { ...workflow[stageIndex], status: "skipped" };
+    }
+    await updateCase(caseId, { workflow });
+  }, [currentUserRole, cases, updateCase]);
 
   // ---- Pause/Resume ----
 
-  const pauseCase = useCallback((caseId: string, reason: PauseReason) => {
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
-        const pauseRecord: PauseRecord = {
-          id: `pause-${Date.now()}`,
-          reason,
-          pausedAt: new Date().toISOString(),
-          pausedAtStage: c.workflow[c.currentStageIndex]?.stageKey || "",
-        };
-        return {
-          ...c,
-          isPaused: true,
-          pauseHistory: [...c.pauseHistory, pauseRecord],
-        };
-      })
-    );
-  }, []);
+  const pauseCase = useCallback(async (caseId: string, reason: PauseReason) => {
+    const c = cases.find(x => x.id === caseId);
+    if (!c) return;
 
-  const resumeCase = useCallback((caseId: string, returnNotes?: string) => {
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId || !c.isPaused) return c;
+    const pauseRecord: PauseRecord = {
+      id: `pause-${Date.now()}`,
+      reason,
+      pausedAt: new Date().toISOString(),
+      pausedAtStage: c.workflow[c.currentStageIndex]?.stageKey || "",
+    };
+    
+    await updateCase(caseId, {
+      isPaused: true,
+      pauseHistory: [...c.pauseHistory, pauseRecord],
+    });
+  }, [cases, updateCase]);
 
-        const pauseHistory = [...c.pauseHistory];
-        const lastPause = pauseHistory[pauseHistory.length - 1];
-        if (lastPause) {
-          pauseHistory[pauseHistory.length - 1] = {
-            ...lastPause,
-            resumedAt: new Date().toISOString(),
-            returnNotes: returnNotes || "",
-          };
-        }
+  const resumeCase = useCallback(async (caseId: string, returnNotes?: string) => {
+    const c = cases.find(x => x.id === caseId);
+    if (!c || !c.isPaused) return;
 
-        return {
-          ...c,
-          isPaused: false,
-          pauseHistory,
-        };
-      })
-    );
-  }, []);
+    const pauseHistory = [...c.pauseHistory];
+    const lastPause = pauseHistory[pauseHistory.length - 1];
+    if (lastPause) {
+      pauseHistory[pauseHistory.length - 1] = {
+        ...lastPause,
+        resumedAt: new Date().toISOString(),
+        returnNotes: returnNotes || "",
+      };
+    }
+
+    await updateCase(caseId, {
+      isPaused: false,
+      pauseHistory,
+    });
+  }, [cases, updateCase]);
 
   // ---- Final status ----
 
-  const setFinalStatus = useCallback((caseId: string, status: FinalStatus) => {
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
+  const setFinalStatus = useCallback(async (caseId: string, status: FinalStatus) => {
+    const c = cases.find(x => x.id === caseId);
+    if (!c) return;
 
-        if (status === "try_in") {
-          // Auto-pause when Try-In
-          const pauseRecord: PauseRecord = {
-            id: `pause-${Date.now()}`,
-            reason: "try_in",
-            pausedAt: new Date().toISOString(),
-            pausedAtStage: c.workflow[c.currentStageIndex]?.stageKey || "ready",
-          };
-          return {
-            ...c,
-            finalStatus: status,
-            isPaused: true,
-            pauseHistory: [...c.pauseHistory, pauseRecord],
-          };
-        }
-
-        return { ...c, finalStatus: status };
-      })
-    );
-  }, []);
+    if (status === "try_in") {
+      // Auto-pause when Try-In
+      const pauseRecord: PauseRecord = {
+        id: `pause-${Date.now()}`,
+        reason: "try_in",
+        pausedAt: new Date().toISOString(),
+        pausedAtStage: c.workflow[c.currentStageIndex]?.stageKey || "ready",
+      };
+      await updateCase(caseId, {
+        finalStatus: status,
+        isPaused: true,
+        pauseHistory: [...c.pauseHistory, pauseRecord],
+      });
+    } else {
+      await updateCase(caseId, { finalStatus: status });
+    }
+  }, [cases, updateCase]);
 
   // ---- Notes ----
 
@@ -609,6 +604,7 @@ export function LabProvider({ children }: { children: ReactNode }) {
     cases,
     staff,
     currentUserRole,
+    isLoading,
     addCase,
     updateCase,
     deleteCase,

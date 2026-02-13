@@ -83,44 +83,48 @@ export default function NewCase() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
 
-    const newCase = addCase({
-      doctorName,
-      patientName,
-      toothNumbers,
-      shade,
-      priority,
-      dueDate,
-      specialInstructions,
-      category,
-      impressionType: category === "fixed" ? impressionType : undefined,
-      classification: category === "fixed" ? classification : undefined,
-      implantType: category === "fixed" && classification === "implant" ? implantType : undefined,
-      fixedMaterial: category === "fixed" ? fixedMaterial : undefined,
-      removableSubType: category === "removable" ? removableSubType : undefined,
-      nightGuardType: category === "removable" && removableSubType === "night_guard" ? nightGuardType : undefined,
-      nightGuardSize: category === "removable" && removableSubType === "night_guard" ? nightGuardSize : undefined,
-      addToothCount: category === "removable" && removableSubType === "add_tooth" ? addToothCount : undefined,
-      orthodonticsType: category === "orthodontics" ? orthodonticsType : undefined,
-      isCustomProduct,
-      customProductName: isCustomProduct ? customProductName : undefined,
-      customProductSteps: isCustomProduct ? customSteps.filter((s) => s.trim()) : undefined,
-    });
-
-    // Add uploaded files as attachments
-    uploadedFiles.forEach((file) => {
-      addAttachment(newCase.id, {
-        name: file.name,
-        url: file.url,
-        type: "image",
-        uploadedAt: new Date().toISOString(),
-        uploadedBy: "current_user",
+    try {
+      const newCase = await addCase({
+        doctorName,
+        patientName,
+        toothNumbers,
+        shade,
+        priority,
+        dueDate,
+        specialInstructions,
+        category,
+        impressionType: category === "fixed" ? impressionType : undefined,
+        classification: category === "fixed" ? classification : undefined,
+        implantType: category === "fixed" && classification === "implant" ? implantType : undefined,
+        fixedMaterial: category === "fixed" ? fixedMaterial : undefined,
+        removableSubType: category === "removable" ? removableSubType : undefined,
+        nightGuardType: category === "removable" && removableSubType === "night_guard" ? nightGuardType : undefined,
+        nightGuardSize: category === "removable" && removableSubType === "night_guard" ? nightGuardSize : undefined,
+        addToothCount: category === "removable" && removableSubType === "add_tooth" ? addToothCount : undefined,
+        orthodonticsType: category === "orthodontics" ? orthodonticsType : undefined,
+        isCustomProduct,
+        customProductName: isCustomProduct ? customProductName : undefined,
+        customProductSteps: isCustomProduct ? customSteps.filter((s) => s.trim()) : undefined,
       });
-    });
 
-    navigate(`/cases/${newCase.id}`);
+      // Add uploaded files as attachments
+      uploadedFiles.forEach((file) => {
+        addAttachment(newCase.id, {
+          name: file.name,
+          url: file.url,
+          type: "image",
+          uploadedAt: new Date().toISOString(),
+          uploadedBy: "current_user",
+        });
+      });
+
+      navigate(`/cases/${newCase.id}`);
+    } catch (err) {
+      console.error("Failed to create case:", err);
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
