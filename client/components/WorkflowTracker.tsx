@@ -1,53 +1,36 @@
-import { useLabContext, Case } from "@/contexts/LabContext";
+import { useLabContext } from "@/contexts/LabContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Check, Clock, ArrowRight, User, AlertCircle, 
-  Inbox, Clipboard, Scan, Monitor, Cog, Palette, 
-  Award, Truck 
+  Check, Clock, ArrowRight, AlertCircle, 
+  Inbox, Monitor, Cog, Palette, 
+  Award, Truck, SkipForward, Pause
 } from "lucide-react";
+import { DentalCase } from "@shared/api";
 
 interface WorkflowTrackerProps {
-  caseData: Case;
-  onMoveNext?: () => void;
+  caseData: DentalCase;
+  onAdvance?: () => void;
 }
 
-const DEPARTMENT_ICONS: { [key: string]: any } = {
-  "reception": Inbox,
-  "case-planning": Clipboard,
-  "model-scan": Scan,
-  "cad-design": Monitor,
-  "cam-production": Cog,
-  "finishing": Palette,
-  "quality-control": Award,
-  "logistics": Truck
-};
+export default function WorkflowTracker({ caseData, onAdvance }: WorkflowTrackerProps) {
+  const { advanceStage } = useLabContext();
 
-const DEPARTMENT_NAMES: { [key: string]: string } = {
-  "reception": "الاستقبال",
-  "case-planning": "تخطيط الحالة",
-  "model-scan": "المسح والنموذج",
-  "cad-design": "التصميم الرقمي",
-  "cam-production": "الإنتاج",
-  "finishing": "التشطيب",
-  "quality-control": "مراقبة الجودة",
-  "logistics": "التوصيل"
-};
-
-export default function WorkflowTracker({ caseData, onMoveNext }: WorkflowTrackerProps) {
-  const { staff, moveToNextDepartment, assignStaffToCase } = useLabContext();
-
-  const handleMoveNext = () => {
-    moveToNextDepartment(caseData.id);
-    if (onMoveNext) onMoveNext();
+  const handleAdvance = () => {
+    advanceStage(caseData.id);
+    if (onAdvance) onAdvance();
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
         return "bg-green-100 text-green-800 border-green-300";
-      case "in-progress":
+      case "in_progress":
         return "bg-blue-100 text-blue-800 border-blue-300";
+      case "skipped":
+        return "bg-gray-100 text-gray-400 border-gray-200";
+      case "paused":
+        return "bg-amber-100 text-amber-800 border-amber-300";
       default:
         return "bg-gray-100 text-gray-600 border-gray-300";
     }
@@ -57,19 +40,29 @@ export default function WorkflowTracker({ caseData, onMoveNext }: WorkflowTracke
     switch (status) {
       case "completed":
         return <Check className="w-4 h-4 text-green-600" />;
-      case "in-progress":
+      case "in_progress":
         return <Clock className="w-4 h-4 text-blue-600 animate-pulse" />;
+      case "skipped":
+        return <SkipForward className="w-4 h-4 text-gray-400" />;
+      case "paused":
+        return <Pause className="w-4 h-4 text-amber-600" />;
       default:
         return <Clock className="w-4 h-4 text-gray-400" />;
     }
   };
 
-  const currentStepIndex = caseData.workflow.findIndex(
-    step => step.status === "in-progress"
-  );
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "completed": return "مكتمل";
+      case "in_progress": return "قيد العمل";
+      case "skipped": return "تم التخطي";
+      case "paused": return "متوقف";
+      default: return "معلق";
+    }
+  };
 
-  const canMoveNext = currentStepIndex !== -1 && 
-                      currentStepIndex < caseData.workflow.length - 1;
+  const currentStep = caseData.workflow[caseData.currentStageIndex];
+  const canAdvance = currentStep?.status === "in_progress" && !caseData.isPaused;
 
   return (
     <div className="space-y-6">
@@ -79,7 +72,7 @@ export default function WorkflowTracker({ caseData, onMoveNext }: WorkflowTracke
           <div>
             <h3 className="text-lg font-bold">{caseData.id}</h3>
             <p className="text-sm text-muted-foreground">
-              {caseData.patient} - {caseData.restorationType} ({caseData.toothNumbers})
+              {caseData.patientName} - {caseData.toothNumbers}
             </p>
           </div>
           <Badge className={
@@ -93,23 +86,30 @@ export default function WorkflowTracker({ caseData, onMoveNext }: WorkflowTracke
         </div>
       </div>
 
+      {/* Paused banner */}
+      {caseData.isPaused && (
+        <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+          <Pause className="w-4 h-4 text-amber-600 mt-0.5" />
+          <p className="font-medium text-amber-800">الحالة متوقفة مؤقتاً - لا يسمح بأي عمل</p>
+        </div>
+      )}
+
       {/* Workflow Steps */}
       <div className="space-y-3">
         {caseData.workflow.map((step, index) => {
-          const Icon = DEPARTMENT_ICONS[step.department] || Inbox;
-          const isActive = step.status === "in-progress";
+          const isActive = step.status === "in_progress";
           const isCompleted = step.status === "completed";
-          const departmentStaff = staff.filter(s => s.department === step.department);
           
           return (
-            <div key={step.department}>
+            <div key={step.id}>
               <div className={`border rounded-lg p-4 transition-all ${
                 isActive ? "border-primary bg-primary/5 shadow-md" :
                 isCompleted ? "border-green-300 bg-green-50/50" :
+                step.status === "skipped" ? "border-gray-200 bg-gray-50/30 opacity-60" :
                 "border-gray-200 bg-gray-50/50"
               }`}>
                 <div className="flex items-center gap-4">
-                  {/* Step Number & Icon */}
+                  {/* Step Number */}
                   <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
                     isCompleted ? "bg-green-500 border-green-600" :
                     isActive ? "bg-primary border-primary" :
@@ -118,51 +118,22 @@ export default function WorkflowTracker({ caseData, onMoveNext }: WorkflowTracke
                     {isCompleted ? (
                       <Check className="w-5 h-5 text-white" />
                     ) : (
-                      <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-gray-500"}`} />
+                      <span className={`text-sm font-bold ${isActive ? "text-white" : "text-gray-500"}`}>
+                        {index + 1}
+                      </span>
                     )}
                   </div>
 
-                  {/* Department Info */}
+                  {/* Step Info */}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-semibold">{DEPARTMENT_NAMES[step.department]}</h4>
+                      <h4 className={`font-semibold ${step.status === "skipped" ? "line-through text-gray-400" : ""}`}>
+                        {step.stage}
+                      </h4>
                       <Badge variant="outline" className={getStatusColor(step.status)}>
-                        {step.status === "completed" ? "مكتمل" :
-                         step.status === "in-progress" ? "قيد العمل" : "معلق"}
+                        {getStatusLabel(step.status)}
                       </Badge>
                     </div>
-                    
-                    {/* Assigned Staff */}
-                    {step.assignedTo && (
-                      <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
-                        <User className="w-3 h-3" />
-                        {staff.find(s => s.id === step.assignedTo)?.name || "غير معين"}
-                      </div>
-                    )}
-
-                    {/* Assign Staff (if active and no assignment) */}
-                    {isActive && !step.assignedTo && departmentStaff.length > 0 && (
-                      <div className="mt-2">
-                        <select
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              assignStaffToCase(caseData.id, step.department, e.target.value);
-                            }
-                          }}
-                          className="text-sm border rounded px-2 py-1"
-                          defaultValue=""
-                        >
-                          <option value="">تعيين موظف...</option>
-                          {departmentStaff.map(s => (
-                            <option key={s.id} value={s.id}>
-                              {s.name} - {s.role}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    {/* Completion Time */}
                     {step.completedAt && (
                       <p className="text-xs text-muted-foreground mt-1">
                         اكتمل في: {new Date(step.completedAt).toLocaleString('ar-EG')}
@@ -191,28 +162,15 @@ export default function WorkflowTracker({ caseData, onMoveNext }: WorkflowTracke
       </div>
 
       {/* Action Button */}
-      {canMoveNext && (
+      {canAdvance && (
         <div className="flex justify-end gap-2 pt-4 border-t">
           <Button 
-            onClick={handleMoveNext}
+            onClick={handleAdvance}
             className="bg-gradient-to-r from-primary to-accent"
           >
             <Check className="w-4 h-4 mr-2" />
             إنهاء المرحلة والانتقال للتالية
           </Button>
-        </div>
-      )}
-
-      {/* Warning if no staff assigned */}
-      {currentStepIndex !== -1 && !caseData.workflow[currentStepIndex].assignedTo && (
-        <div className="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm">
-          <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
-          <div>
-            <p className="font-medium text-yellow-800">لم يتم تعيين موظف لهذه المرحلة</p>
-            <p className="text-yellow-700 text-xs mt-1">
-              يُنصح بتعيين موظف للمرحلة الحالية لمتابعة العمل بشكل أفضل
-            </p>
-          </div>
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@ import { useDirection } from "./hooks/use-direction";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Cases from "./pages/Cases";
+import NewCase from "./pages/NewCase";
 import CaseDetail from "./pages/CaseDetail";
 import Departments from "./pages/Departments";
 import QualityControl from "./pages/QualityControl";
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/" element={<Index />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/cases" element={<Cases />} />
+        <Route path="/cases/new" element={<NewCase />} />
         <Route path="/cases/:caseId" element={<CaseDetail />} />
         <Route path="/departments" element={<Departments />} />
         <Route path="/quality-control" element={<QualityControl />} />

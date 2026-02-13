@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import AllDepartmentsOverview from "@/components/AllDepartmentsOverview";
-import { useLabContext } from "@/contexts/LabContext";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -102,6 +101,15 @@ export default function Dashboard() {
   ]);
 
   const [showReport, setShowReport] = useState(false);
+
+  const departmentStats = [
+    { name: "الاستقبال", efficiency: 94 },
+    { name: "الديجيتال", efficiency: 91 },
+    { name: "البورسلين", efficiency: 88 },
+    { name: "المتحركة", efficiency: 92 },
+    { name: "التقويم", efficiency: 95 },
+    { name: "الإدارة", efficiency: 97 },
+  ];
 
   const dismissAlert = (id: number) => {
     setAlerts(alerts.map((a) => (a.id === id ? { ...a, dismissed: true } : a)));
